@@ -75,7 +75,7 @@ const Settings = () => {
               </div>
             </div>
             <button 
-              onClick={() => initMqtt(true)}
+              onClick={() => useStore.getState().initMqtt(true)}
               className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
             >
               <RefreshCw size={14} />

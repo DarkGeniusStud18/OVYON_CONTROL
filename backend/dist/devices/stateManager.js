@@ -22,12 +22,9 @@ class StateManager {
         this.db = null;
         this.devices = new Map();
         this.rules = [];
+        this.systemLogs = []; // Logs en mémoire pour l'admin
         this.initDatabase();
     }
-    /**
-     * INITIALISATION DE LA BASE DE DONNÉES
-     * Crée les tables si elles n'existent pas.
-     */
     initDatabase() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -35,7 +32,6 @@ class StateManager {
                     filename: path_1.default.join(__dirname, '../../ovyon_control.db'),
                     driver: sqlite3_1.default.Database
                 });
-                // Table des appareils (ID, type, nom, état en JSON)
                 yield this.db.exec(`
         CREATE TABLE IF NOT EXISTS devices (
           id TEXT PRIMARY KEY,
@@ -60,50 +56,37 @@ class StateManager {
             }
         });
     }
-    /**
-     * CHARGEMENT DES DONNÉES
-     * Lit la base SQLite pour remplir la mémoire vive au démarrage.
-     */
     loadFromDb() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.db)
                 return;
-            // Chargement des appareils
+            // Load Devices
             const deviceRows = yield this.db.all('SELECT * FROM devices');
-            if (deviceRows.length === 0) {
-                // Si vide, on crée les objets de base pour la démo
-                const initialDevices = [
-                    { id: 'light_salon', type: 'light', name: 'Salon' },
-                    { id: 'light_cuisine', type: 'light', name: 'Cuisine' },
-                    { id: 'door_main', type: 'door', name: 'Porte Principale' },
-                    { id: 'sensor_env', type: 'sensor', name: 'Capteur Environnement' }
-                ];
-                for (const d of initialDevices) {
-                    const defaultState = JSON.stringify({ power: 'off', brightness: 0, temperature: 25, position: 0 });
-                    yield this.db.run('INSERT INTO devices (id, type, name, state_json) VALUES (?, ?, ?, ?)', [d.id, d.type, d.name, defaultState]);
-                    this.devices.set(d.id, Object.assign(Object.assign({}, d), { online: false, state: JSON.parse(defaultState) }));
-                }
-            }
-            else {
-                deviceRows.forEach(row => {
-                    this.devices.set(row.id, {
-                        id: row.id,
-                        type: row.type,
-                        name: row.name,
-                        online: false,
-                        state: JSON.parse(row.state_json)
-                    });
+            deviceRows.forEach(row => {
+                this.devices.set(row.id, {
+                    id: row.id,
+                    type: row.type,
+                    name: row.name,
+                    online: false,
+                    state: JSON.parse(row.state_json)
                 });
-            }
-            // Chargement des règles d'automatisation
+            });
+            // Load Rules
             const ruleRows = yield this.db.all('SELECT * FROM rules');
             this.rules = ruleRows.map(row => (Object.assign(Object.assign({}, row), { enabled: row.enabled === 1 })));
         });
     }
-    /**
-     * MISE À JOUR DE L'ÉTAT D'UN APPAREIL
-     * Sauvegarde le nouvel état (ex: ON/OFF) en base de données.
-     */
+    // LOGGING SYSTÈME
+    logAction(action) {
+        const timestamp = new Date().toLocaleTimeString();
+        this.systemLogs.unshift(`[${timestamp}] ${action}`);
+        if (this.systemLogs.length > 50)
+            this.systemLogs.pop();
+    }
+    getSystemLogs() {
+        return this.systemLogs;
+    }
+    // --- DEVICE MANAGEMENT ---
     updateDeviceState(deviceId, newState) {
         return __awaiter(this, void 0, void 0, function* () {
             const device = this.devices.get(deviceId);
@@ -113,19 +96,49 @@ class StateManager {
                 if (this.db) {
                     yield this.db.run('UPDATE devices SET state_json = ? WHERE id = ?', [JSON.stringify(device.state), deviceId]);
                 }
+                // Log important changes only to avoid spam
+                if (newState.power || newState.state) {
+                    this.logAction(`${device.name}: État changé -> ${JSON.stringify(newState)}`);
+                }
             }
         });
     }
-    /**
-     * TOGGLE D'UNE RÈGLE
-     * Active ou désactive un scénario sans le supprimer.
-     */
+    addDevice(device) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.db) {
+                const stateJson = JSON.stringify(device.state || { power: 'off' });
+                yield this.db.run('INSERT OR REPLACE INTO devices (id, type, name, state_json) VALUES (?, ?, ?, ?)', [device.id, device.type, device.name, stateJson]);
+                this.devices.set(device.id, Object.assign(Object.assign({}, device), { online: true, state: JSON.parse(stateJson) }));
+                this.logAction(`Nouvel appareil: ${device.name}`);
+            }
+        });
+    }
+    deleteDevice(deviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.db) {
+                yield this.db.run('DELETE FROM devices WHERE id = ?', [deviceId]);
+                this.devices.delete(deviceId);
+                this.logAction(`Appareil supprimé: ${deviceId}`);
+            }
+        });
+    }
+    updateDeviceMeta(deviceId, name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const device = this.devices.get(deviceId);
+            if (device && this.db) {
+                device.name = name;
+                yield this.db.run('UPDATE devices SET name = ? WHERE id = ?', [name, deviceId]);
+            }
+        });
+    }
+    // --- RULE MANAGEMENT ---
     toggleRule(ruleId) {
         return __awaiter(this, void 0, void 0, function* () {
             const rule = this.rules.find(r => r.id === ruleId);
             if (rule && this.db) {
                 rule.enabled = !rule.enabled;
                 yield this.db.run('UPDATE rules SET enabled = ? WHERE id = ?', [rule.enabled ? 1 : 0, ruleId]);
+                this.logAction(`Règle ${rule.name}: ${rule.enabled ? 'ACTIVÉE' : 'DÉSACTIVÉE'}`);
             }
         });
     }
@@ -134,6 +147,7 @@ class StateManager {
             if (this.db) {
                 yield this.db.run('INSERT INTO rules (id, name, triggerDeviceId, value, actionDeviceId, enabled) VALUES (?, ?, ?, ?, ?, ?)', [rule.id, rule.name, rule.triggerDeviceId, rule.value, rule.actionDeviceId, rule.enabled ? 1 : 0]);
                 this.rules.push(rule);
+                this.logAction(`Nouvelle règle créée: ${rule.name}`);
             }
         });
     }
@@ -154,41 +168,7 @@ class StateManager {
             }
         });
     }
-    /**
-     * ENREGISTREMENT D'UN NOUVEL APPAREIL
-     * Méthode utilisée lors de l'appairage NFC/Bluetooth.
-     */
-    addDevice(device) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.db) {
-                const stateJson = JSON.stringify(device.state || { power: 'off' });
-                yield this.db.run('INSERT OR REPLACE INTO devices (id, type, name, state_json) VALUES (?, ?, ?, ?)', [device.id, device.type, device.name, stateJson]);
-                this.devices.set(device.id, Object.assign(Object.assign({}, device), { online: true, state: JSON.parse(stateJson) }));
-                logger_1.default.info(`Appareil enregistré en base : ${device.name} (${device.id})`);
-            }
-        });
-    }
-    deleteDevice(deviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.db) {
-                yield this.db.run('DELETE FROM devices WHERE id = ?', [deviceId]);
-                this.devices.delete(deviceId);
-            }
-        });
-    }
-    updateDeviceMeta(deviceId, name) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const device = this.devices.get(deviceId);
-            if (device && this.db) {
-                device.name = name;
-                yield this.db.run('UPDATE devices SET name = ? WHERE id = ?', [name, deviceId]);
-            }
-        });
-    }
-    /**
-     * RÉINITIALISATION TOTALE
-     * Efface tout pour remettre le système à l'état d'usine.
-     */
+    // --- SYSTEM FUNCTIONS ---
     resetSystem() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.db) {
@@ -196,15 +176,30 @@ class StateManager {
                 yield this.db.run('DELETE FROM rules');
                 this.devices.clear();
                 this.rules = [];
-                logger_1.default.warn("SYSTÈME RÉINITIALISÉ : Données SQLite effacées.");
-                yield this.loadFromDb();
+                this.logAction("🛑 SYSTÈME RÉINITIALISÉ (Factory Reset)");
             }
         });
     }
     /**
-     * COMMANDE GLOBALE
-     * Éteint tous les objets connectés d'un coup (Économie d'énergie).
+     * MODE PANIQUE
+     * Exécute la séquence de sécurité (Portes fermées, Lumières OFF).
+     * Note: En prod, cela enverrait aussi des ordres MQTT.
      */
+    triggerPanicMode() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.logAction("⚠️ ALERTE PANIQUE DÉCLENCHÉE");
+            // Simulation logic for DB state
+            for (const [id, device] of this.devices.entries()) {
+                if (device.type === 'door')
+                    device.state = { state: 'closed', position: 0 };
+                if (device.type === 'light' || device.type === 'plug')
+                    device.state = { power: 'off', brightness: 0 };
+                if (this.db) {
+                    yield this.db.run('UPDATE devices SET state_json = ? WHERE id = ?', [JSON.stringify(device.state), id]);
+                }
+            }
+        });
+    }
     updateAllDevices(newState) {
         return __awaiter(this, void 0, void 0, function* () {
             for (const [id, device] of this.devices.entries()) {
@@ -213,6 +208,7 @@ class StateManager {
                     yield this.db.run('UPDATE devices SET state_json = ? WHERE id = ?', [JSON.stringify(device.state), id]);
                 }
             }
+            this.logAction(`COMMANDE GLOBALE : ${JSON.stringify(newState)}`);
         });
     }
     getAllDevices() { return Array.from(this.devices.values()); }

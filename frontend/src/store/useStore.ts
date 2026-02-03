@@ -2,11 +2,7 @@ import { create } from 'zustand';
 import mqtt from 'mqtt';
 import { toast } from 'react-hot-toast';
 import { feedback } from '../utils/feedback';
-
-/**
- * SOURCE DE VÉRITÉ (ZUSTAND STORE)
- * Ce fichier centralise TOUT l'état de l'application.
- */
+import { authenticateUser } from '../utils/biometrics';
 
 const API_BASE = 'http://localhost:3001/api';
 
@@ -41,6 +37,8 @@ interface AppSettings {
   mqttUser: string;
   notificationsEnabled: boolean;
   securityAlerts: boolean;
+  biometricsEnabled: boolean;
+  panicButtonEnabled: boolean;
 }
 
 interface DiscoveredDevice {
@@ -57,34 +55,35 @@ interface AppState {
   automationRules: AutomationRule[];
   settings: AppSettings;
   mqttClient: mqtt.MqttClient | null;
-  activeTab: 'home' | 'voice' | 'settings' | 'vision' | 'auto' | 'analytics' | 'splash';
+  activeTab: 'home' | 'voice' | 'settings' | 'vision' | 'auto' | 'analytics' | 'splash' | 'admin';
   isAppLoading: boolean;
   isPairing: boolean;
   pairingStatus: 'idle' | 'scanning' | 'list' | 'success';
   discoveredDevices: DiscoveredDevice[];
   isSmartAiEnabled: boolean;
   isAionResponding: boolean;
+  adminLogs: string[];
   
   // ACTIONS
   fetchData: () => Promise<void>;
+  fetchAdminLogs: () => Promise<void>;
   setAppLoading: (loading: boolean) => void;
   setPairing: (pairing: boolean) => void;
   setPairingStatus: (status: 'idle' | 'scanning' | 'list' | 'success') => void;
   setDiscoveredDevices: (devices: DiscoveredDevice[]) => void;
-  setActiveTab: (tab: 'home' | 'voice' | 'settings' | 'vision' | 'auto' | 'analytics' | 'splash') => void;
+  setActiveTab: (tab: 'home' | 'voice' | 'settings' | 'vision' | 'auto' | 'analytics' | 'splash' | 'admin') => void;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
   setSmartAi: (enabled: boolean) => void;
   resetSystem: () => Promise<void>;
+  triggerPanic: () => Promise<void>;
   initMqtt: (forceReconnect?: boolean) => void; 
-  sendCommand: (topic: string, message: string) => void;
+  sendCommand: (topic: string, message: string) => Promise<void>;
   addVoiceCommand: (cmd: Omit<VoiceCommand, 'id' | 'timestamp'>) => void;
   updateDevice: (id: string, newState: any) => void;
-  
   toggleAutomation: (id: string) => void;
   addAutomation: (rule: Omit<AutomationRule, 'id'>) => void;
   updateAutomation: (id: string, rule: Partial<AutomationRule>) => void;
   deleteAutomation: (id: string) => void;
-
   addDevice: (device: DeviceState) => void;
   updateDeviceMeta: (id: string, name: string) => void;
   deleteDevice: (id: string) => void;
@@ -99,13 +98,16 @@ export const useStore = create<AppState>((set, get) => ({
   pairingStatus: 'idle',
   discoveredDevices: [],
   voiceHistory: [],
+  adminLogs: [],
   isSmartAiEnabled: true,
   isAionResponding: false,
   settings: {
     brokerUrl: 'localhost:8083',
     mqttUser: 'ovyon',
     notificationsEnabled: true,
-    securityAlerts: true
+    securityAlerts: true,
+    biometricsEnabled: false,
+    panicButtonEnabled: false
   },
   automationRules: [],
   devices: [],
@@ -119,6 +121,14 @@ export const useStore = create<AppState>((set, get) => ({
       const devices = await devRes.json();
       const automationRules = await rulesRes.json();
       set({ devices, automationRules });
+    } catch (e) {}
+  },
+
+  fetchAdminLogs: async () => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/logs`);
+      const logs = await res.json();
+      set({ adminLogs: logs });
     } catch (e) {}
   },
 
@@ -139,6 +149,20 @@ export const useStore = create<AppState>((set, get) => ({
         get().fetchData();
       }
     } catch (e) { toast.error("Erreur réinitialisation."); }
+  },
+
+  triggerPanic: async () => {
+    feedback.error();
+    set((state) => ({
+        devices: state.devices.map(d => ({ 
+            ...d, 
+            state: { ...d.state, power: 'off', state: 'closed', position: 0 } 
+        }))
+    }));
+    try {
+      await fetch(`${API_BASE}/system/panic`, { method: 'POST' });
+      toast.error("MODE PANIQUE ACTIVÉ !");
+    } catch (e) { console.error(e); }
   },
 
   setActiveTab: (tab) => {
@@ -306,8 +330,25 @@ export const useStore = create<AppState>((set, get) => ({
     client.on('close', () => set({ connected: false }));
   },
 
-  sendCommand: (topic, message) => {
-    const client = get().mqttClient;
+  sendCommand: async (topic, message) => {
+    const { settings, mqttClient } = get();
+
+    // SÉCURITÉ BIOMÉTRIQUE (Porte)
+    if (topic.includes('door') && message === 'open' && settings.biometricsEnabled) {
+      const promise = authenticateUser();
+      toast.promise(promise, {
+        loading: 'Vérification biométrique...',
+        success: 'Identité confirmée',
+        error: 'Échec authentification'
+      });
+      
+      const isAuthenticated = await promise;
+      if (!isAuthenticated) {
+        feedback.error();
+        return;
+      }
+    }
+
     const parts = topic.split('/');
     const type = parts[2];
     const id = parts[3];
@@ -333,8 +374,8 @@ export const useStore = create<AppState>((set, get) => ({
       }
     }
 
-    if (client?.connected) {
-      client.publish(topic, message);
+    if (mqttClient?.connected) {
+      mqttClient.publish(topic, message);
     }
   },
 }));
