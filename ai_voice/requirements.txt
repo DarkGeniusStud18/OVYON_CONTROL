@@ -1,0 +1,3 @@
+paho-mqtt
+google-generativeai
+python-dotenv

@@ -1,0 +1,221 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.stateManager = void 0;
+const sqlite3_1 = __importDefault(require("sqlite3"));
+const sqlite_1 = require("sqlite");
+const logger_1 = __importDefault(require("../services/logger"));
+const path_1 = __importDefault(require("path"));
+class StateManager {
+    constructor() {
+        this.db = null;
+        this.devices = new Map();
+        this.rules = [];
+        this.initDatabase();
+    }
+    /**
+     * INITIALISATION DE LA BASE DE DONNÉES
+     * Crée les tables si elles n'existent pas.
+     */
+    initDatabase() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.db = yield (0, sqlite_1.open)({
+                    filename: path_1.default.join(__dirname, '../../ovyon_control.db'),
+                    driver: sqlite3_1.default.Database
+                });
+                // Table des appareils (ID, type, nom, état en JSON)
+                yield this.db.exec(`
+        CREATE TABLE IF NOT EXISTS devices (
+          id TEXT PRIMARY KEY,
+          type TEXT,
+          name TEXT,
+          state_json TEXT
+        );
+        CREATE TABLE IF NOT EXISTS rules (
+          id TEXT PRIMARY KEY,
+          name TEXT,
+          triggerDeviceId TEXT,
+          value TEXT,
+          actionDeviceId TEXT,
+          enabled INTEGER
+        );
+      `);
+                logger_1.default.info("Base de données SQLite initialisée 🗄️");
+                yield this.loadFromDb();
+            }
+            catch (error) {
+                logger_1.default.error("Erreur SQLite:", error);
+            }
+        });
+    }
+    /**
+     * CHARGEMENT DES DONNÉES
+     * Lit la base SQLite pour remplir la mémoire vive au démarrage.
+     */
+    loadFromDb() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.db)
+                return;
+            // Chargement des appareils
+            const deviceRows = yield this.db.all('SELECT * FROM devices');
+            if (deviceRows.length === 0) {
+                // Si vide, on crée les objets de base pour la démo
+                const initialDevices = [
+                    { id: 'light_salon', type: 'light', name: 'Salon' },
+                    { id: 'light_cuisine', type: 'light', name: 'Cuisine' },
+                    { id: 'door_main', type: 'door', name: 'Porte Principale' },
+                    { id: 'sensor_env', type: 'sensor', name: 'Capteur Environnement' }
+                ];
+                for (const d of initialDevices) {
+                    const defaultState = JSON.stringify({ power: 'off', brightness: 0, temperature: 25, position: 0 });
+                    yield this.db.run('INSERT INTO devices (id, type, name, state_json) VALUES (?, ?, ?, ?)', [d.id, d.type, d.name, defaultState]);
+                    this.devices.set(d.id, Object.assign(Object.assign({}, d), { online: false, state: JSON.parse(defaultState) }));
+                }
+            }
+            else {
+                deviceRows.forEach(row => {
+                    this.devices.set(row.id, {
+                        id: row.id,
+                        type: row.type,
+                        name: row.name,
+                        online: false,
+                        state: JSON.parse(row.state_json)
+                    });
+                });
+            }
+            // Chargement des règles d'automatisation
+            const ruleRows = yield this.db.all('SELECT * FROM rules');
+            this.rules = ruleRows.map(row => (Object.assign(Object.assign({}, row), { enabled: row.enabled === 1 })));
+        });
+    }
+    /**
+     * MISE À JOUR DE L'ÉTAT D'UN APPAREIL
+     * Sauvegarde le nouvel état (ex: ON/OFF) en base de données.
+     */
+    updateDeviceState(deviceId, newState) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const device = this.devices.get(deviceId);
+            if (device) {
+                device.state = Object.assign(Object.assign({}, device.state), newState);
+                device.online = true;
+                if (this.db) {
+                    yield this.db.run('UPDATE devices SET state_json = ? WHERE id = ?', [JSON.stringify(device.state), deviceId]);
+                }
+            }
+        });
+    }
+    /**
+     * TOGGLE D'UNE RÈGLE
+     * Active ou désactive un scénario sans le supprimer.
+     */
+    toggleRule(ruleId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const rule = this.rules.find(r => r.id === ruleId);
+            if (rule && this.db) {
+                rule.enabled = !rule.enabled;
+                yield this.db.run('UPDATE rules SET enabled = ? WHERE id = ?', [rule.enabled ? 1 : 0, ruleId]);
+            }
+        });
+    }
+    addRule(rule) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.db) {
+                yield this.db.run('INSERT INTO rules (id, name, triggerDeviceId, value, actionDeviceId, enabled) VALUES (?, ?, ?, ?, ?, ?)', [rule.id, rule.name, rule.triggerDeviceId, rule.value, rule.actionDeviceId, rule.enabled ? 1 : 0]);
+                this.rules.push(rule);
+            }
+        });
+    }
+    updateRule(ruleId, updates) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const rule = this.rules.find(r => r.id === ruleId);
+            if (rule && this.db) {
+                Object.assign(rule, updates);
+                yield this.db.run('UPDATE rules SET name = ?, triggerDeviceId = ?, value = ?, actionDeviceId = ?, enabled = ? WHERE id = ?', [rule.name, rule.triggerDeviceId, rule.value, rule.actionDeviceId, rule.enabled ? 1 : 0, ruleId]);
+            }
+        });
+    }
+    deleteRule(ruleId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.db) {
+                yield this.db.run('DELETE FROM rules WHERE id = ?', [ruleId]);
+                this.rules = this.rules.filter(r => r.id !== ruleId);
+            }
+        });
+    }
+    /**
+     * ENREGISTREMENT D'UN NOUVEL APPAREIL
+     * Méthode utilisée lors de l'appairage NFC/Bluetooth.
+     */
+    addDevice(device) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.db) {
+                const stateJson = JSON.stringify(device.state || { power: 'off' });
+                yield this.db.run('INSERT OR REPLACE INTO devices (id, type, name, state_json) VALUES (?, ?, ?, ?)', [device.id, device.type, device.name, stateJson]);
+                this.devices.set(device.id, Object.assign(Object.assign({}, device), { online: true, state: JSON.parse(stateJson) }));
+                logger_1.default.info(`Appareil enregistré en base : ${device.name} (${device.id})`);
+            }
+        });
+    }
+    deleteDevice(deviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.db) {
+                yield this.db.run('DELETE FROM devices WHERE id = ?', [deviceId]);
+                this.devices.delete(deviceId);
+            }
+        });
+    }
+    updateDeviceMeta(deviceId, name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const device = this.devices.get(deviceId);
+            if (device && this.db) {
+                device.name = name;
+                yield this.db.run('UPDATE devices SET name = ? WHERE id = ?', [name, deviceId]);
+            }
+        });
+    }
+    /**
+     * RÉINITIALISATION TOTALE
+     * Efface tout pour remettre le système à l'état d'usine.
+     */
+    resetSystem() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.db) {
+                yield this.db.run('DELETE FROM devices');
+                yield this.db.run('DELETE FROM rules');
+                this.devices.clear();
+                this.rules = [];
+                logger_1.default.warn("SYSTÈME RÉINITIALISÉ : Données SQLite effacées.");
+                yield this.loadFromDb();
+            }
+        });
+    }
+    /**
+     * COMMANDE GLOBALE
+     * Éteint tous les objets connectés d'un coup (Économie d'énergie).
+     */
+    updateAllDevices(newState) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const [id, device] of this.devices.entries()) {
+                device.state = Object.assign(Object.assign({}, device.state), newState);
+                if (this.db) {
+                    yield this.db.run('UPDATE devices SET state_json = ? WHERE id = ?', [JSON.stringify(device.state), id]);
+                }
+            }
+        });
+    }
+    getAllDevices() { return Array.from(this.devices.values()); }
+    getRules() { return this.rules; }
+}
+exports.stateManager = new StateManager();

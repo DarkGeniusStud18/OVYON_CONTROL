@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-background text-white font-sans;
+}
+
+/* Hide scrollbars for all elements */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+h1, h2, h3, h4 {
+  @apply font-display;
+}
+
+.card-gradient {
+  background: linear-gradient(145deg, #16213E, #1A1A2E);
+}
