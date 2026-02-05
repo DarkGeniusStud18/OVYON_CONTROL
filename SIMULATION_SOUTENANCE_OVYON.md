@@ -110,6 +110,22 @@
 **FIN DU SCRIPT - MENTION TRÈS BIEN VISÉE.**
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # 🎭 SIMULATION INTÉGRALE : SOUTENANCE OVYON CONTROL (ÉDITION ULTIME)
         **Thème :** Conception d'un écosystème domotique localisé à faible consommation basé sur une application mobile, des objets connectés
     NFC/Bluetooth et une IA vocale embarquée.

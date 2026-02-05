@@ -39,6 +39,7 @@ interface AppSettings {
   securityAlerts: boolean;
   biometricsEnabled: boolean;
   panicButtonEnabled: boolean;
+  adminModeEnabled: boolean;
 }
 
 interface DiscoveredDevice {
@@ -63,6 +64,7 @@ interface AppState {
   isSmartAiEnabled: boolean;
   isAionResponding: boolean;
   adminLogs: string[];
+  isPinModalOpen: boolean; // État pour la modal PIN
   
   // ACTIONS
   fetchData: () => Promise<void>;
@@ -73,6 +75,8 @@ interface AppState {
   setDiscoveredDevices: (devices: DiscoveredDevice[]) => void;
   setActiveTab: (tab: 'home' | 'voice' | 'settings' | 'vision' | 'auto' | 'analytics' | 'splash' | 'admin') => void;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
+  setPinModalOpen: (open: boolean) => void;
+  setAdminMode: (enabled: boolean) => void; // Action simplifiée
   setSmartAi: (enabled: boolean) => void;
   resetSystem: () => Promise<void>;
   triggerPanic: () => Promise<void>;
@@ -99,6 +103,7 @@ export const useStore = create<AppState>((set, get) => ({
   discoveredDevices: [],
   voiceHistory: [],
   adminLogs: [],
+  isPinModalOpen: false,
   isSmartAiEnabled: true,
   isAionResponding: false,
   settings: {
@@ -107,7 +112,8 @@ export const useStore = create<AppState>((set, get) => ({
     notificationsEnabled: true,
     securityAlerts: true,
     biometricsEnabled: false,
-    panicButtonEnabled: false
+    panicButtonEnabled: false,
+    adminModeEnabled: localStorage.getItem('ovyon_admin_mode') === 'true'
   },
   automationRules: [],
   devices: [],
@@ -130,6 +136,17 @@ export const useStore = create<AppState>((set, get) => ({
       const logs = await res.json();
       set({ adminLogs: logs });
     } catch (e) {}
+  },
+
+  setPinModalOpen: (open) => set({ isPinModalOpen: open }),
+
+  setAdminMode: (enabled) => {
+    localStorage.setItem('ovyon_admin_mode', String(enabled));
+    set((state) => ({
+      settings: { ...state.settings, adminModeEnabled: enabled }
+    }));
+    if (enabled) feedback.success();
+    else feedback.tap();
   },
 
   setSmartAi: (enabled) => {

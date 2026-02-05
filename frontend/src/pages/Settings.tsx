@@ -10,7 +10,12 @@ import {
   Trash2,
   Edit,
   PlusCircle,
-  Bluetooth
+  Bluetooth,
+  Fingerprint,
+  AlertTriangle,
+  FileText,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import AddModal from '../components/AddModal';
@@ -28,11 +33,11 @@ const SettingCard = ({ icon: Icon, title, children }: any) => (
 );
 
 const Settings = () => {
-  const { connected, settings, updateSettings, devices, initMqtt, setPairing, resetSystem } = useStore();
+  const { connected, settings, updateSettings, devices, initMqtt, setPairing, resetSystem, setActiveTab, setAdminMode, setPinModalOpen } = useStore();
   const [isAdding, setIsAdding] = useState(false);
 
   return (
-    <div className="space-y-6 py-4">
+    <div className="space-y-6 py-4 pb-20">
       <AnimatePresence>
         {isAdding && <AddModal type="device" onClose={() => setIsAdding(false)} />}
       </AnimatePresence>
@@ -43,109 +48,111 @@ const Settings = () => {
       </header>
 
       <div className="space-y-4">
-        {/* Connectivity Trigger */}
-        <SettingCard icon={Bluetooth} title="Connexion Locale">
+        {/* SÉCURITÉ AVANCÉE */}
+        <SettingCard icon={Fingerprint} title="Sécurité & Accès">
           <div className="space-y-4">
-            <p className="text-xs text-gray-400 px-1">Configurez vos équipements via Bluetooth Low Energy ou NFC pour une installation sans fil simplifiée.</p>
+            {/* Biométrie */}
+            <div className="flex items-center justify-between p-2">
+              <div>
+                <p className="text-sm font-medium text-white">Verrouillage Biométrique</p>
+                <p className="text-[10px] text-gray-500 uppercase font-bold">Actions sensibles (Porte)</p>
+              </div>
+              <button 
+                onClick={() => updateSettings({ biometricsEnabled: !settings.biometricsEnabled })}
+                className={`w-12 h-6 rounded-full relative transition-colors ${settings.biometricsEnabled ? 'bg-primary' : 'bg-gray-700'}`}
+              >
+                <motion.div animate={{ x: settings.biometricsEnabled ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+              </button>
+            </div>
+            
+            {/* Mode Administrateur (Toggle avec PIN Modal) */}
+            <div className="flex items-center justify-between p-2 border-t border-white/5 pt-4">
+              <div>
+                <p className="text-sm font-medium text-white">Mode Administrateur</p>
+                <p className="text-[10px] text-gray-500 uppercase font-bold">Accès aux logs et root</p>
+              </div>
+              <button 
+                onClick={() => {
+                  if (settings.adminModeEnabled) {
+                    setAdminMode(false);
+                  } else {
+                    setPinModalOpen(true);
+                  }
+                }}
+                className={`w-12 h-6 rounded-full relative transition-colors ${settings.adminModeEnabled ? 'bg-red-500' : 'bg-gray-700'}`}
+              >
+                <motion.div animate={{ x: settings.adminModeEnabled ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+              </button>
+            </div>
+
+            {/* Lien direct vers Admin (visible uniquement si déverrouillé) */}
+            <AnimatePresence>
+              {settings.adminModeEnabled && (
+                <motion.button 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  onClick={() => setActiveTab('admin')}
+                  className="w-full py-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-red-500 hover:bg-red-500/20 transition-all overflow-hidden"
+                >
+                  <Unlock size={16} /> Ouvrir la Console Root
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
+        </SettingCard>
+
+        {/* Bouton Panique */}
+        <SettingCard icon={AlertTriangle} title="Urgence">
+          <div className="flex items-center justify-between p-2">
+            <div>
+              <p className="text-sm font-medium text-white">Bouton Panique</p>
+              <p className="text-[10px] text-gray-500 uppercase font-bold">Afficher sur le dashboard</p>
+            </div>
             <button 
-              onClick={() => setPairing(true)}
-              className="w-full py-4 bg-primary text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-primary/20 hover:shadow-primary/40"
+              onClick={() => updateSettings({ panicButtonEnabled: !settings.panicButtonEnabled })}
+              className={`w-12 h-6 rounded-full relative transition-colors ${settings.panicButtonEnabled ? 'bg-primary' : 'bg-gray-700'}`}
             >
-              <Bluetooth size={18} className="animate-pulse" />
-              Lancer un Appairage BLE/NFC
+              <motion.div animate={{ x: settings.panicButtonEnabled ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
             </button>
           </div>
         </SettingCard>
 
-        {/* Connection Status */}
+        {/* CONNEXION LOCALE */}
+        <SettingCard icon={Bluetooth} title="Connexion Locale">
+          <div className="space-y-4">
+            <button 
+              onClick={() => setPairing(true)}
+              className="w-full py-4 bg-primary text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-primary/20 hover:shadow-primary/40"
+            >
+              <Bluetooth size={18} className="animate-pulse" /> Lancer Appairage BLE/NFC
+            </button>
+          </div>
+        </SettingCard>
+
+        {/* MQTT CONFIG */}
         <SettingCard icon={Wifi} title="Connectivité MQTT">
           <div className="space-y-4">
             <div className="flex justify-between items-center bg-background/50 p-4 rounded-2xl border border-white/5">
               <div className="flex-1 mr-4">
                 <p className="text-xs font-bold text-gray-400 uppercase">Broker URL</p>
                 <input 
-                  type="text"
-                  value={settings.brokerUrl}
+                  type="text" value={settings.brokerUrl}
                   onChange={(e) => updateSettings({ brokerUrl: e.target.value })}
-                  className="bg-transparent text-sm font-mono text-primary mt-1 w-full border-none p-0 focus:ring-0"
+                  className="bg-transparent text-sm font-mono text-primary mt-1 w-full border-none p-0 focus:ring-0 outline-none"
                 />
               </div>
               <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase ${connected ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
                 {connected ? 'Actif' : 'Erreur'}
               </div>
             </div>
-            <button 
-              onClick={() => useStore.getState().initMqtt(true)}
-              className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-            >
-              <RefreshCw size={14} />
-              Re-connecter au Broker
+            <button onClick={() => initMqtt(true)} className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+              <RefreshCw size={14} /> Re-connecter au Broker
             </button>
           </div>
         </SettingCard>
 
-        {/* Notifications */}
-        <SettingCard icon={ShieldCheck} title="Préférences Alertes">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-2">
-              <span className="text-xs font-medium text-gray-400">Notifications Push</span>
-              <button 
-                onClick={() => { updateSettings({ notificationsEnabled: !settings.notificationsEnabled }); useStore.getState().initMqtt(); /* Refresh logic if needed */ }}
-                className={`w-12 h-6 rounded-full relative transition-colors ${settings.notificationsEnabled ? 'bg-primary' : 'bg-gray-700'}`}
-              >
-                <motion.div 
-                  animate={{ x: settings.notificationsEnabled ? 24 : 4 }}
-                  className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm"
-                />
-              </button>
-            </div>
-            <div className="flex items-center justify-between p-2">
-              <span className="text-xs font-medium text-gray-400">Alertes Sécurité Smart</span>
-              <button 
-                onClick={() => updateSettings({ securityAlerts: !settings.securityAlerts })}
-                className={`w-12 h-6 rounded-full relative transition-colors ${settings.securityAlerts ? 'bg-primary' : 'bg-gray-700'}`}
-              >
-                <motion.div 
-                  animate={{ x: settings.securityAlerts ? 24 : 4 }}
-                  className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm"
-                />
-              </button>
-            </div>
-          </div>
-        </SettingCard>
-
-        {/* System Info */}
-        <SettingCard icon={Cpu} title="Matériel & ESP32">
-          <div className="space-y-2">
-            <div className="divide-y divide-white/5 max-h-60 overflow-y-auto pr-2">
-              {devices.map(node => (
-                <div key={node.id} className="flex justify-between items-center py-3 px-1 hover:bg-white/5 rounded-xl transition-colors">
-                  <div>
-                    <p className="text-xs font-bold">{node.name}</p>
-                    <p className="text-[10px] text-gray-500 font-mono">{node.id}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[9px] font-black uppercase ${node.online ? 'text-green-500' : 'text-red-500'}`}>
-                      {node.online ? 'Online' : 'Offline'}
-                    </span>
-                    <button className="p-2 text-gray-600 hover:text-white transition-colors">
-                      <Edit size={14} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button 
-              onClick={() => setIsAdding(true)}
-              className="w-full mt-4 py-4 bg-primary/10 border border-dashed border-primary/30 text-primary rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/20 transition-all"
-            >
-              <PlusCircle size={16} />
-              Ajouter un équipement
-            </button>
-          </div>
-        </SettingCard>
-
-        {/* Danger Zone */}
+        {/* DANGER ZONE */}
         <div className="p-4 border-2 border-red-500/10 rounded-[2rem] bg-red-500/5 space-y-4">
           <div className="flex items-center gap-2 text-red-500 px-2">
             <ShieldCheck size={18} />
@@ -155,8 +162,7 @@ const Settings = () => {
             onClick={resetSystem}
             className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
           >
-            <Trash2 size={16} />
-            Réinitialiser tout le système
+            <Trash2 size={16} /> Réinitialiser tout le système
           </button>
         </div>
       </div>

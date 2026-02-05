@@ -16,7 +16,8 @@ describe('OVYON Security Store Tests', () => {
         notificationsEnabled: true,
         securityAlerts: true,
         biometricsEnabled: false,
-        panicButtonEnabled: false
+        panicButtonEnabled: false,
+        adminModeEnabled: false // Ajouté pour corriger l'erreur de type
       },
       devices: []
     });
