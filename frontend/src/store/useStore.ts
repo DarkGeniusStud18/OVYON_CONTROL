@@ -6,6 +6,7 @@ import { authenticateUser } from '../utils/biometrics';
 
 const API_BASE = 'http://localhost:3001/api';
 
+// ... (Interfaces DeviceState, VoiceCommand, AutomationRule, AppSettings, DiscoveredDevice inchangées)
 interface DeviceState {
   id: string;
   type: 'light' | 'door' | 'window' | 'plug' | 'sensor' | 'other';
@@ -49,6 +50,13 @@ interface DiscoveredDevice {
   type: 'light' | 'plug' | 'door' | 'window';
 }
 
+interface ConfirmModalState {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+}
+
 interface AppState {
   connected: boolean;
   devices: DeviceState[];
@@ -64,8 +72,11 @@ interface AppState {
   isSmartAiEnabled: boolean;
   isAionResponding: boolean;
   adminLogs: string[];
-  isPinModalOpen: boolean; // État pour la modal PIN
+  isPinModalOpen: boolean;
   
+  // Modal State
+  confirmModal: ConfirmModalState;
+
   // ACTIONS
   fetchData: () => Promise<void>;
   fetchAdminLogs: () => Promise<void>;
@@ -76,9 +87,9 @@ interface AppState {
   setActiveTab: (tab: 'home' | 'voice' | 'settings' | 'vision' | 'auto' | 'analytics' | 'splash' | 'admin') => void;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
   setPinModalOpen: (open: boolean) => void;
-  setAdminMode: (enabled: boolean) => void; // Action simplifiée
+  setAdminMode: (enabled: boolean) => void;
   setSmartAi: (enabled: boolean) => void;
-  resetSystem: () => Promise<void>;
+  resetSystem: () => void; // Changé pour utiliser la modale
   triggerPanic: () => Promise<void>;
   initMqtt: (forceReconnect?: boolean) => void; 
   sendCommand: (topic: string, message: string) => Promise<void>;
@@ -91,6 +102,10 @@ interface AppState {
   addDevice: (device: DeviceState) => void;
   updateDeviceMeta: (id: string, name: string) => void;
   deleteDevice: (id: string) => void;
+  
+  // Modal Actions
+  openConfirmModal: (title: string, message: string, onConfirm: () => void) => void;
+  closeConfirmModal: () => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -106,6 +121,7 @@ export const useStore = create<AppState>((set, get) => ({
   isPinModalOpen: false,
   isSmartAiEnabled: true,
   isAionResponding: false,
+  confirmModal: { isOpen: false, title: '', message: '', onConfirm: () => {} },
   settings: {
     brokerUrl: 'localhost:8083',
     mqttUser: 'ovyon',
@@ -118,6 +134,7 @@ export const useStore = create<AppState>((set, get) => ({
   automationRules: [],
   devices: [],
 
+  // ... (fetchData et fetchAdminLogs inchangés) ...
   fetchData: async () => {
     try {
       const [devRes, rulesRes] = await Promise.all([
@@ -138,6 +155,13 @@ export const useStore = create<AppState>((set, get) => ({
     } catch (e) {}
   },
 
+  // Modal Actions
+  openConfirmModal: (title, message, onConfirm) => {
+    feedback.tap();
+    set({ confirmModal: { isOpen: true, title, message, onConfirm } });
+  },
+  closeConfirmModal: () => set((state) => ({ confirmModal: { ...state.confirmModal, isOpen: false } })),
+
   setPinModalOpen: (open) => set({ isPinModalOpen: open }),
 
   setAdminMode: (enabled) => {
@@ -155,17 +179,22 @@ export const useStore = create<AppState>((set, get) => ({
     toast.success(enabled ? "IA Smart Activée" : "Mode Manuel");
   },
 
-  resetSystem: async () => {
-    if (!confirm("Voulez-vous vraiment réinitialiser TOUT le système ?")) return;
-    try {
-      feedback.error();
-      const res = await fetch(`${API_BASE}/system/reset`, { method: 'POST' });
-      if (res.ok) {
-        set({ devices: [], automationRules: [] });
-        toast.success("Système réinitialisé.");
-        get().fetchData();
+  resetSystem: () => {
+    get().openConfirmModal(
+      "Réinitialisation Système",
+      "Voulez-vous vraiment tout effacer ? Cette action est irréversible.",
+      async () => {
+        try {
+          feedback.error();
+          const res = await fetch(`${API_BASE}/system/reset`, { method: 'POST' });
+          if (res.ok) {
+            set({ devices: [], automationRules: [] });
+            toast.success("Système réinitialisé.");
+            get().fetchData();
+          }
+        } catch (e) { toast.error("Erreur réinitialisation."); }
       }
-    } catch (e) { toast.error("Erreur réinitialisation."); }
+    );
   },
 
   triggerPanic: async () => {
@@ -229,13 +258,19 @@ export const useStore = create<AppState>((set, get) => ({
     } catch (e) {}
   },
 
-  deleteAutomation: async (id) => {
-    if (!confirm("Supprimer ce scénario ?")) return;
-    set((state) => ({ automationRules: state.automationRules.filter(r => r.id !== id) }));
-    try {
-      await fetch(`${API_BASE}/rules/${id}`, { method: 'DELETE' });
-      feedback.tap();
-    } catch (e) {}
+  deleteAutomation: (id) => {
+    get().openConfirmModal(
+      "Supprimer Scénario",
+      "Êtes-vous sûr de vouloir supprimer cette règle ?",
+      async () => {
+        set((state) => ({ automationRules: state.automationRules.filter(r => r.id !== id) }));
+        try {
+          await fetch(`${API_BASE}/rules/${id}`, { method: 'DELETE' });
+          feedback.tap();
+          toast.success("Règle supprimée");
+        } catch (e) { toast.error("Erreur suppression"); }
+      }
+    );
   },
 
   addDevice: async (device) => {
@@ -263,13 +298,19 @@ export const useStore = create<AppState>((set, get) => ({
     } catch (e) {}
   },
 
-  deleteDevice: async (id) => {
-    if (!confirm("Supprimer cet appareil ?")) return;
-    set((state) => ({ devices: state.devices.filter(d => d.id !== id) }));
-    try {
-      await fetch(`${API_BASE}/devices/${id}`, { method: 'DELETE' });
-      feedback.tap();
-    } catch (e) {}
+  deleteDevice: (id) => {
+    get().openConfirmModal(
+      "Supprimer Appareil",
+      "Voulez-vous retirer cet appareil de l'écosystème ?",
+      async () => {
+        set((state) => ({ devices: state.devices.filter(d => d.id !== id) }));
+        try {
+          await fetch(`${API_BASE}/devices/${id}`, { method: 'DELETE' });
+          feedback.tap();
+          toast.success("Appareil supprimé");
+        } catch (e) { toast.error("Erreur suppression"); }
+      }
+    );
   },
 
   updateSettings: (newSettings) => {
@@ -289,6 +330,7 @@ export const useStore = create<AppState>((set, get) => ({
     voiceHistory: [{ ...cmd, id: Math.random().toString(), timestamp: new Date() }, ...state.voiceHistory].slice(0, 10)
   })),
 
+  // ... (initMqtt et sendCommand inchangés) ...
   initMqtt: (forceReconnect = false) => {
     const currentClient = get().mqttClient;
     if (currentClient && !forceReconnect) return;
@@ -350,7 +392,6 @@ export const useStore = create<AppState>((set, get) => ({
   sendCommand: async (topic, message) => {
     const { settings, mqttClient } = get();
 
-    // SÉCURITÉ BIOMÉTRIQUE (Porte)
     if (topic.includes('door') && message === 'open' && settings.biometricsEnabled) {
       const promise = authenticateUser();
       toast.promise(promise, {

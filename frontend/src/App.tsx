@@ -20,7 +20,8 @@ import SplashScreen from './pages/SplashScreen';
 import Loading from './pages/Loading';
 import PairingModal from './components/PairingModal';
 import PinModal from './components/PinModal';
-import Admin from './pages/Admin'; // Import de la page Admin
+import ConfirmModal from './components/ConfirmModal'; // Ajout
+import Admin from './pages/Admin';
 import { Toaster } from 'react-hot-toast';
 
 const NavItem = ({ icon: Icon, label, active, onClick }: any) => (
@@ -44,7 +45,6 @@ function App() {
     initMqtt();
   }, []);
 
-  // Automatic scroll to top on tab change
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeTab]);
@@ -58,8 +58,9 @@ function App() {
       {isAppLoading && <Loading />}
       <PairingModal />
       <PinModal />
+      <ConfirmModal /> {/* Intégration */}
       
-      {/* Header (caché en mode Admin pour immersion) */}
+      {/* Header (caché en mode Admin) */}
       {activeTab !== 'admin' && (
         <header className="fixed top-0 left-0 right-0 z-50 px-8 py-6 bg-[#0A0B10]/80 backdrop-blur-2xl flex justify-between items-center border-b border-white/[0.05]">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
