@@ -5,8 +5,8 @@
 #include "../wifi_config.h"
 
 /**
- * OVYON ACCESS NODE (Window) v1.0
- * Position-based control for automatic windows.
+ * NŒUD D'ACCÈS OVYON (Fenêtre) v1.0
+ * Contrôle positionnel précis (0-100%) pour l'aération intelligente.
  */
 
 #define SERVO_PIN 19
@@ -18,7 +18,7 @@ PubSubClient mqtt(espClient);
 void setup() {
   Serial.begin(115200);
   window.attach(SERVO_PIN);
-  window.write(0);
+  window.write(0); // Fermé au démarrage
 
   setupWiFi();
   mqtt.setServer(OVYON_MQTT_SERVER, OVYON_MQTT_PORT);
@@ -30,12 +30,16 @@ void setupWiFi() {
   while (WiFi.status() != WL_CONNECTED) delay(500);
 }
 
+/**
+ * GESTION DE LA POSITION PROPORTIONNELLE
+ * Reçoit un entier (0-100) et le convertit en angle de servo.
+ */
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
   String msg = "";
   for (int i = 0; i < length; i++) msg += (char)payload[i];
 
   int pos = msg.toInt();
-  pos = constrain(pos, 0, 100);
+  pos = constrain(pos, 0, 100); // Sécurité bornes
   window.write(map(pos, 0, 100, 0, 90));
   
   publishStatus(pos);

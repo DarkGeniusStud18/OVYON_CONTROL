@@ -5,8 +5,8 @@
 #include "../wifi_config.h"
 
 /**
- * OVYON ENVIRONMENT NODE v1.0
- * Low-power climate monitoring (Temp/Humidity).
+ * NŒUD ENVIRONNEMENT OVYON v1.0
+ * Surveillance climatique (Température/Humidité) à faible consommation.
  */
 
 #define DHTPIN 4
@@ -28,10 +28,14 @@ void setupWiFi() {
   while (WiFi.status() != WL_CONNECTED) delay(500);
 }
 
+/**
+ * LECTURE ET PUBLICATION DES DONNÉES
+ */
 void publishStatus() {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
   
+  // Vérification de la validité des données capteur
   if (isnan(h) || isnan(t)) return;
 
   StaticJsonDocument<128> doc;
@@ -46,7 +50,7 @@ void publishStatus() {
 void reconnect() {
   while (!mqtt.connected()) {
     if (mqtt.connect("OVYON_ENV_NODE", OVYON_MQTT_USER, OVYON_MQTT_PASSWORD)) {
-      Serial.println("Climate Sensor Online");
+      Serial.println("Capteur Climatique en Ligne");
     } else {
       delay(5000);
     }
@@ -57,7 +61,7 @@ void loop() {
   if (!mqtt.connected()) reconnect();
   mqtt.loop();
 
-  // Smart Reporting: Every 15 seconds to save battery in mini-house scenario
+  // Rapport intelligent : Toutes les 15 secondes pour économiser la batterie
   static unsigned long lastSent = 0;
   if (millis() - lastSent > 15000) {
     publishStatus();

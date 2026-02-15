@@ -4,11 +4,11 @@
 #include "../wifi_config.h"
 
 /**
- * OVYON SMART PLUGS NODE
- * Controls 2 smart plugs with energy monitoring simulation.
+ * NŒUD PRISES INTELLIGENTES OVYON v1.0
+ * Contrôle de 2 prises de courant avec simulation de surveillance énergétique.
  */
 
-// Pins
+// Définition des broches
 #define RELAY_1 26
 #define RELAY_2 27
 
@@ -20,6 +20,7 @@ void setup() {
   pinMode(RELAY_1, OUTPUT);
   pinMode(RELAY_2, OUTPUT);
   
+  // État initial éteint pour la sécurité
   digitalWrite(RELAY_1, LOW);
   digitalWrite(RELAY_2, LOW);
 
@@ -29,15 +30,18 @@ void setup() {
 }
 
 void connectWiFi() {
-  Serial.print("Connecting to WiFi...");
+  Serial.print("Connexion au WiFi OVYON...");
   WiFi.begin(OVYON_SSID, OVYON_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  Serial.println(" Connected!");
+  Serial.println(" CONNECTÉ");
 }
 
+/**
+ * GESTION DES COMMANDES (ON/OFF)
+ */
 void callback(char* topic, byte* payload, unsigned int length) {
   String msg = "";
   for (int i = 0; i < length; i++) msg += (char)payload[i];
@@ -54,26 +58,28 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
+/**
+ * ENVOI DE LA CONSOMMATION SIMULÉE
+ */
 void sendStatus(int id, bool on) {
   StaticJsonDocument<128> doc;
   doc["power"] = on ? "on" : "off";
-  doc["consumption"] = on ? (40 + random(5, 15)) : 0; // Simulated Watts
+  // Simulation de Watts (40-55W si allumé)
+  doc["consumption"] = on ? (40 + random(5, 15)) : 0; 
   
   char buffer[128];
   serializeJson(doc, buffer);
   String topic = "ovyon/status/plugs/" + String(id);
-  client.publish(topic.c_str(), buffer);
+  client.publish(topic.c_str(), buffer, true);
 }
 
 void reconnect() {
   while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
+    Serial.print("Tentative de connexion MQTT...");
     if (client.connect("OVYON_PLUGS_NODE", OVYON_MQTT_USER, OVYON_MQTT_PASSWORD)) {
-      Serial.println("connected");
+      Serial.println("Connecté!");
       client.subscribe("ovyon/control/plugs/+/power");
     } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
       delay(5000);
     }
   }
@@ -83,7 +89,7 @@ void loop() {
   if (!client.connected()) reconnect();
   client.loop();
   
-  // Periodic status update every 30s
+  // Mise à jour périodique toutes les 30s
   static unsigned long lastUpdate = 0;
   if (millis() - lastUpdate > 30000) {
     sendStatus(1, digitalRead(RELAY_1));
