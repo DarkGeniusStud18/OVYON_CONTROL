@@ -24,10 +24,11 @@ class StateManager {
   private db: Database | null = null;
   private devices: Map<string, DeviceState> = new Map();
   private rules: AutomationRule[] = [];
-  private systemLogs: string[] = []; // Logs en mémoire pour l'admin
+  private systemLogs: string[] = [];
+  public ready: Promise<void>;
 
   constructor() {
-    this.initDatabase();
+    this.ready = this.initDatabase();
   }
 
   private async initDatabase() {
@@ -225,3 +226,4 @@ class StateManager {
 }
 
 export const stateManager = new StateManager();
+

@@ -1,136 +1,228 @@
-# 🏗️ GUIDE DE CONSTRUCTION : ÉCOSYSTÈME OVYON CONTROL
+# GUIDE DE CONSTRUCTION COMPLET - OVYON CONTROL (VERSION DETAILLEE)
 
-Ce document est le guide technique officiel pour assembler la maquette physique et configurer l'intelligence artificielle de votre projet de soutenance.
+## 1. Objectif du guide
+Ce guide explique pas a pas comment fabriquer une maquette OVYON fonctionnelle de niveau soutenance:
+- montage physique,
+- architecture electrique,
+- flash firmware,
+- integration backend/frontend/IA,
+- tests finaux de validation.
 
----
-
-## 📋 1. Liste du Matériel (BOM - Bill of Materials)
-
-### Niveaux de Contrôle (Hardware)
-*   **Microcontrôleurs :** 4 ou 5 x ESP32 DevKit v1 (Un par module pour plus de réalisme).
-*   **Actionneurs :**
-    *   2 x Servomoteurs (SG90 ou MG996R) pour la Porte et la Fenêtre.
-    *   5 x Modules Relais 5V (Simple canal) pour les Lumières et Prises.
-*   **Éclairage :** 3 x LEDs de couleurs différentes (Salon, Cuisine, Chambre) + Résistances 220Ω.
-*   **Capteurs :** 1 x Capteur de température et humidité DHT11.
-*   **Alimentation :** Bloc secteur 5V / 10A (Alimentation commune pour éviter les chutes de tension lors des mouvements de servos).
-
-### Cerveau IA (Aion)
-*   **Ordinateur/Board :** Raspberry Pi 4 (ou votre PC portable pour la démo).
-*   **Audio :** Micro USB omnidirectionnel + Enceinte Bluetooth ou Jack.
+Ce document est le guide principal de construction. Le document `GUIDE_HARDWARE_FIRMWARE.md` est le guide d execution technique detaillee par noeud.
 
 ---
 
-## 🛠️ 2. Schéma de Câblage par Module
+## 2. Architecture cible de la maquette
 
-### Module A : Éclairage (Node Lights)
-| Composant | Pin ESP32 | Description |
-| :--- | :---: | :--- |
-| Relais/LED Salon | **GPIO 25** | Contrôle via MQTT topic `lights/salon` |
-| Relais/LED Chambre | **GPIO 26** | Contrôle via MQTT topic `lights/chambre` |
-| Relais/LED Cuisine | **GPIO 27** | Contrôle via MQTT topic `lights/cuisine` |
+## 2.1 Niveaux
+1. Niveau interface: Frontend React (tablette/PC/smartphone)
+2. Niveau orchestration: Backend Node.js + broker MQTT (Aedes) + SQLite
+3. Niveau edge: 5 noeuds ESP32 (Door, Window, Lights, Plugs, Environment)
+4. Niveau intelligence: AI voice Python (`aion.py`, `aion_brain.py`)
 
-### Module B : Accès (Node Access)
-| Composant | Pin ESP32 | Description |
-| :--- | :---: | :--- |
-| Servo Porte | **GPIO 18** | Angle 0° (fermé) à 90° (ouvert) |
-| Servo Fenêtre | **GPIO 19** | Position graduelle 0-100% |
+## 2.2 Flux principal
+Utilisateur -> Frontend -> API/Store -> MQTT publish -> ESP32 action -> MQTT status -> Frontend refresh
 
-### Module C : Prises (Node Plugs)
-| Composant | Pin ESP32 | Description |
-| :--- | :---: | :--- |
-| Relais Prise 1 | **GPIO 26** | Connecté à un petit ventilateur USB par ex. |
-| Relais Prise 2 | **GPIO 27** | Connecté à une lampe de chevet par ex. |
-
-### Module D : Environnement (Node Sensor)
-| Composant | Pin ESP32 | Description |
-| :--- | :---: | :--- |
-| Capteur DHT11 | **GPIO 4** | Envoie Temp/Hum toutes les 15s |
+## 2.3 Parametres reseau actuels (projet)
+- MQTT broker host (firmware): `192.168.1.100` (a ajuster selon ton reseau)
+- MQTT port: `1883`
+- MQTT user: `ovyon`
+- MQTT password: `demo2024`
+- MQTT WebSocket (frontend): `8083`
 
 ---
 
-## 🚀 3. Étapes de Construction
+## 3. Plan de fabrication recommande
 
-### Étape 1 : Préparation du Firmware
-1.  Ouvrez le dossier `firmware/` dans Arduino IDE.
-2.  **CRUCIAL :** Modifiez le fichier `wifi_config.h` avec le nom de votre WiFi et l'adresse IP de votre ordinateur (qui servira de serveur).
-3.  Flashez chaque ESP32 avec son code respectif (`Lights.ino`, `Door.ino`, etc.).
+## 3.1 Etape A - Preparation atelier
+- Surface de travail isolee et stable.
+- Alimentation coupee pendant le cablage.
+- Etiquetage obligatoire des fils (Door, Window, Light1, Light2, Plug1...).
+- Verification du materiel avec `HARDWARE_BILL_OF_MATERIALS.md`.
 
-### Étape 2 : Assemblage de la Maquette
-1.  **Structure :** Utilisez du carton plume ou du bois léger pour créer une mini-maison ou un panneau de présentation vertical.
-2.  **Fixation :** Fixez les servos sur les gonds des mini-portes/fenêtres.
-3.  **Câblage :** Regroupez tous les fils de masse (GND) et d'alimentation (5V) sur un rail commun pour éviter les fils qui traînent.
+## 3.2 Etape B - Construction mecanique de la maquette
+- Fabriquer une base rigide (bois MDF 5mm ou carton plume epais).
+- Definir 5 zones visibles:
+  - zone salon/chambre/cuisine (lumiere),
+  - zone porte,
+  - zone fenetre,
+  - zone prises,
+  - zone environnement.
+- Prevoir des trappes d acces pour maintenance des ESP32.
+- Fixer les servos sur supports rigides (eviter collage direct sans equerre).
 
-### Étape 3 : Configuration de l'IA Aion
-1.  Installez Python 3.11 sur votre PC ou Raspberry Pi.
-2.  Dans `ai_voice/`, installez les dépendances : `pip install -r requirements.txt`.
-3.  Créez un fichier `.env` dans `ai_voice/` et ajoutez votre clé : `GOOGLE_API_KEY=VOTRE_CLE_ICI`.
-4.  Lancez Aion : `python aion.py`.
+## 3.3 Etape C - Construction electrique
+- Utiliser une alimentation 5V centrale de puissance suffisante (voir BOM).
+- Regle critique: masse commune (GND) entre alimentation externe, ESP32, capteurs, servos, relais.
+- Separer les lignes:
+  - ligne puissance actionneurs (servo/relais),
+  - ligne logique ESP32/capteurs.
+- Proteger les lignes sensibles (gaine thermo, serre-cables).
+
+## 3.4 Etape D - Flash firmware par noeud
+Ordre recommande:
+1. Lights
+2. Door
+3. Window
+4. Plugs
+5. Environment
+
+Pour chaque flash:
+- verifier `firmware/wifi_config.h`,
+- selectionner la bonne carte/port,
+- televerser,
+- confirmer sur Serial Monitor.
+
+## 3.5 Etape E - Integration logicielle
+1. Lancer backend (`backend`)
+2. Lancer frontend (`frontend`)
+3. Lancer AI voice (`ai_voice`)
+4. Connecter la maquette et verifier les statuses MQTT
+
+## 3.6 Etape F - Validation complete
+Executer:
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\verify-soutenance.ps1 -SkipFirmware
+```
+Puis valider la maquette en manuel avec un protocole de test (section 8).
 
 ---
 
-## 📱 4. Mise en marche de l'Application
+## 4. Cablage logique attendu (resume)
 
-1.  **Backend :** Dans le dossier `backend/`, lancez `npm run dev`. Le serveur SQLite et le Broker MQTT démarrent.
-2.  **Frontend :** Dans `frontend/`, lancez `npm run dev`. Ouvrez l'URL sur votre navigateur (ou smartphone via l'IP).
-3.  **Liaison :** Dans les **Paramètres** de l'appli, vérifiez que l'adresse du "Broker URL" correspond à votre IP.
+## 4.1 Node Lights (`firmware/Lights/Lights.ino`)
+- GPIO 25: salon
+- GPIO 26: chambre
+- GPIO 27: cuisine
+- Topics:
+  - `ovyon/control/lights/+/power`
+  - `ovyon/control/lights/+/brightness`
+  - status: `ovyon/status/lights/<room>`
+
+## 4.2 Node Door (`firmware/Door/Door.ino`)
+- Servo pin: GPIO 18
+- Topic commande: `ovyon/control/door/main/action`
+- Status: `ovyon/status/door/main`
+
+## 4.3 Node Window (`firmware/Window/Window.ino`)
+- Servo pin: GPIO 19
+- Topic commande: `ovyon/control/window/salon/position`
+- Status: `ovyon/status/window/salon`
+
+## 4.4 Node Plugs (`firmware/Plugs/Plugs.ino`)
+- Relay 1: GPIO 26
+- Relay 2: GPIO 27
+- Topic commande: `ovyon/control/plugs/+/power`
+- Status:
+  - `ovyon/status/plugs/1`
+  - `ovyon/status/plugs/2`
+
+## 4.5 Node Environment (`firmware/Environment/Environment.ino`)
+- DHT11 data: GPIO 4
+- Status: `ovyon/status/sensor/env`
 
 ---
 
-## 🎭 5. Scénario de Démonstration "Wow"
+## 5. Procedure de mise en service complete
 
-1.  **Appairage :** Allez dans Paramètres -> Connexion Locale. Cliquez sur "Lancer l'appairage". Montrez au jury l'animation fluide pendant que vous simulez la détection d'un nouvel objet.
-2.  **Contrôle Tactile :** Passez sur le **Plan 2D**. Touchez le salon, la LED physique doit s'allumer instantanément.
-3.  **Intelligence Vocale :** Ouvrez l'onglet **Voice**. Dites *"Aion, je vais dormir"*.
-    *   *Effet :* La porte se ferme, toutes les lumières s'éteignent avec un fondu, l'appli confirme vocalement.
-4.  **Proactivité :** Laissez la porte ouverte. Après quelques minutes, une notification surgit sur l'app : *"Aion : Il est tard, la porte est restée ouverte. Sécuriser la maison ?"*
+## 5.1 Firmware
+- Ouvrir `firmware/wifi_config.h`
+- Configurer SSID / mot de passe / IP MQTT
+- Flasher les 5 noeuds
+
+## 5.2 Backend
+```powershell
+cd backend
+npm run dev
+```
+Verification attendue:
+- broker MQTT demarre,
+- API accessible,
+- logs ecrits sans erreur critique.
+
+## 5.3 Frontend
+```powershell
+cd frontend
+npm run dev
+```
+Verification attendue:
+- UI charge,
+- connexion broker visible,
+- devices visibles/apres heartbeat.
+
+## 5.4 AI Voice
+```powershell
+cd ai_voice
+pip install -r requirements.txt
+python aion.py
+# optionnel en parallele
+python aion_brain.py
+```
 
 ---
 
-## 💡 Conseils pour la Soutenance
-*   **Mode Offline :** Insistez sur le fait que le système fonctionne SANS internet (sauf pour Gemini).
-*   **Culturel :** Mentionnez que l'IA comprend le **Fon** et le **Yoruba**, ce qui est une innovation majeure pour l'accessibilité en Afrique.
-*   **Énergie :** Montrez l'onglet **Analytics** pour prouver que vous surveillez la consommation réelle.
+## 6. Scenarios de demonstration recommandes
 
-**OVYON Control : La domotique pensée pour nous, par nous.**
+## 6.1 Scenario rapide (3 min)
+1. Ouvrir dashboard
+2. Allumer salon
+3. Ouvrir puis fermer porte
+4. Lire temperature/humidite
 
+## 6.2 Scenario soutenance (10 a 15 min)
+1. Controle tactile lumiere
+2. Commande vocale locale
+3. Commande vocale contextuelle
+4. Appairage
+5. Biometrie
+6. Admin logs
+7. Panic mode
+8. Analytics
 
-Le fichier wifi_config.h est le fichier de configuration central de toute votre partie matérielle
-  (Hardware). 
+---
 
-  Son rôle est de centraliser les identifiants de connexion afin que vous n'ayez pas à les modifier un par
-  un dans chaque fichier .ino (Lumières, Porte, Fenêtre, etc.).
+## 7. Risques terrain et mitigation
+- Chute tension servo -> alim externe + condensateur + masse commune
+- Reconnexion MQTT lente -> boucle reconnect deja presente dans firmware
+- Latence IA cloud -> bascule commandes locales
+- Bruit salle -> micro filaire ou saisie texte de secours
+- Deconnexion Wi-Fi -> hotspot de secours preconfigure
 
-  Voici ses deux fonctions principales :
+---
 
-   1. Configuration WiFi : Il contient le nom (SSID) et le mot de passe du réseau WiFi que vos cartes ESP32
-      utiliseront pour communiquer.
-   2. Configuration MQTT (Le Serveur) : Il contient l'adresse IP de votre ordinateur (ou Raspberry Pi) qui
-      fait tourner le backend. Sans cette adresse correcte, vos objets connectés ne pourront pas recevoir
-      les ordres de l'application.
+## 8. Protocole de test final (obligatoire avant soutenance)
 
-  Pourquoi est-il crucial pour votre soutenance ?
-  Le jour de votre présentation, si vous changez de lieu ou si vous utilisez un point d'accès mobile, vous
-  n'aurez qu'un seul endroit où modifier les informations avant de reflasher vos cartes.
+## 8.1 Tests unitaires fonctionnels maquette
+- [ ] Allumage/extinction 3 zones lumiere
+- [ ] Variation brightness lights
+- [ ] Door open/close + status exact
+- [ ] Window position 0/50/100
+- [ ] Plug1 on/off + conso simulee
+- [ ] Plug2 on/off + conso simulee
+- [ ] DHT status recu toutes les 15s
 
-  Voici un aperçu de son contenu typique (tel que nous l'avons configuré) :
+## 8.2 Tests resilients
+- [ ] Redemarrage backend sans reboot ESP32
+- [ ] Coupure/reprise Wi-Fi
+- [ ] Redemarrage frontend sans perte etat retenu
 
-    1 #ifndef WIFI_CONFIG_H
-    2 #define WIFI_CONFIG_H
-    3 
-    4 // Les identifiants de votre réseau local
-    5 const char* OVYON_SSID = "NOM_DE_VOTRE_WIFI";
-    6 const char* OVYON_PASSWORD = "MOT_DE_PASSE";
-    7 
-    8 // L'adresse IP de votre serveur Backend (PC ou Raspberry Pi)
-    9 const char* OVYON_MQTT_SERVER = "192.168.x.x"; 
-   10 const int OVYON_MQTT_PORT = 1883;
-   11 
-   12 // Identifiants de sécurité MQTT
-   13 const char* OVYON_MQTT_USER = "ovyon";
-   14 const char* OVYON_MQTT_PASSWORD = "demo2024";
-   15 
-   16 #endif
+## 8.3 Test repetition soutenance
+- [ ] run complet en 15 min sans blocage
+- [ ] 2 incidents simules geres calmement
 
-  Conseil pour la démo : Assurez-vous que l'adresse OVYON_MQTT_SERVER correspond bien à l'adresse IP
-  actuelle de votre machine sur le réseau local.
+---
+
+## 9. Livrables minimum pour jour J
+- Maquette cablage propre et etiquete
+- Laptop configure (backend/frontend)
+- Smartphone demo
+- Script soutenance imprime
+- Video plan B offline
+- Captures ecran plan C
+
+---
+
+## 10. Annexes utiles
+- Guide technique detail: `GUIDE_HARDWARE_FIRMWARE.md`
+- BOM complete achat: `HARDWARE_BILL_OF_MATERIALS.md`
+- Script oral 45 min: `SCRIPT_ORAL_SOUTENANCE_45MIN_OVYON.md`

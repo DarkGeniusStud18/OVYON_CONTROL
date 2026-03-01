@@ -1,0 +1,33 @@
+{"level":"info","message":"🧪 DÉBUT DES TESTS SYSTÈME OVYON","timestamp":"2026-02-15T10:20:48.071Z"}
+{"level":"info","message":"Test 1: Création d'un appareil...","timestamp":"2026-02-15T10:20:48.073Z"}
+{"level":"error","message":"❌ Échec création appareil","timestamp":"2026-02-15T10:20:48.074Z"}
+{"level":"info","message":"Test 2: Création d'une règle...","timestamp":"2026-02-15T10:20:48.074Z"}
+{"level":"error","message":"❌ Échec création règle","timestamp":"2026-02-15T10:20:48.074Z"}
+{"level":"info","message":"Test 3: Mode Panique...","timestamp":"2026-02-15T10:20:48.074Z"}
+{"level":"info","message":"✅ Mode Panique loggué et exécuté","timestamp":"2026-02-15T10:20:48.155Z"}
+{"level":"info","message":"Test 4: Réinitialisation Système...","timestamp":"2026-02-15T10:20:48.156Z"}
+{"level":"info","message":"✅ Système réinitialisé (0 appareils)","timestamp":"2026-02-15T10:20:48.157Z"}
+{"level":"info","message":"🎉 TOUS LES TESTS TERMINÉS","timestamp":"2026-02-15T10:20:48.157Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-02-15T10:20:48.209Z"}
+{"level":"info","message":"SYSTEM TESTS START","timestamp":"2026-02-15T10:56:16.889Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-02-15T10:56:16.899Z"}
+{"level":"info","message":"Test 1: create device","timestamp":"2026-02-15T10:56:16.903Z"}
+{"level":"info","message":"PASS: device created","timestamp":"2026-02-15T10:56:16.933Z"}
+{"level":"info","message":"Test 2: create rule","timestamp":"2026-02-15T10:56:16.935Z"}
+{"level":"info","message":"PASS: rule created","timestamp":"2026-02-15T10:56:16.957Z"}
+{"level":"info","message":"Test 3: panic mode","timestamp":"2026-02-15T10:56:16.958Z"}
+{"level":"info","message":"PASS: panic mode logged","timestamp":"2026-02-15T10:56:16.965Z"}
+{"level":"info","message":"Test 4: system reset","timestamp":"2026-02-15T10:56:16.966Z"}
+{"level":"info","message":"PASS: system reset removed all devices","timestamp":"2026-02-15T10:56:16.975Z"}
+{"level":"info","message":"SYSTEM TESTS PASSED","timestamp":"2026-02-15T10:56:16.976Z"}
+{"level":"info","message":"SYSTEM TESTS START","timestamp":"2026-02-15T11:04:56.004Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-02-15T11:04:56.013Z"}
+{"level":"info","message":"Test 1: create device","timestamp":"2026-02-15T11:04:56.018Z"}
+{"level":"info","message":"PASS: device created","timestamp":"2026-02-15T11:04:56.046Z"}
+{"level":"info","message":"Test 2: create rule","timestamp":"2026-02-15T11:04:56.047Z"}
+{"level":"info","message":"PASS: rule created","timestamp":"2026-02-15T11:04:56.072Z"}
+{"level":"info","message":"Test 3: panic mode","timestamp":"2026-02-15T11:04:56.072Z"}
+{"level":"info","message":"PASS: panic mode logged","timestamp":"2026-02-15T11:04:56.083Z"}
+{"level":"info","message":"Test 4: system reset","timestamp":"2026-02-15T11:04:56.084Z"}
+{"level":"info","message":"PASS: system reset removed all devices","timestamp":"2026-02-15T11:04:56.101Z"}
+{"level":"info","message":"SYSTEM TESTS PASSED","timestamp":"2026-02-15T11:04:56.102Z"}

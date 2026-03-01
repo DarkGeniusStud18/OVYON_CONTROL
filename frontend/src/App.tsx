@@ -43,7 +43,7 @@ function App() {
 
   React.useEffect(() => {
     initMqtt();
-  }, []);
+  }, [initMqtt]);
 
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -6,11 +6,11 @@ import paho.mqtt.client as mqtt
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-/**
+"""
  * CERVEAU AION : LE STRATÈGE (PROACTIVE BRAIN)
  * Analyse autonome de l'état de la maison via Gemini AI.
  * Fournit des suggestions proactives naturelles à haute valeur ajoutée.
- */
+ """
 
 load_dotenv()
 
@@ -124,3 +124,4 @@ class AionProactiveBrain:
 
 if __name__ == "__main__":
     AionProactiveBrain().run()
+

@@ -1,264 +1,397 @@
-# 🎭 SIMULATION INTÉGRALE : SOUTENANCE OVYON CONTROL (VERSION FINALE)
+# SIMULATION INTEGRALE DE SOUTENANCE - OVYON CONTROL (VERSION DETAILLEE)
 
-**Thème :** Conception d'un écosystème domotique localisé à faible consommation basé sur une application mobile, des objets connectés NFC/Bluetooth et une IA vocale embarquée.
+## 0) But du document
 
----
+Ce document est un script operationnel complet pour ta soutenance OVYON Control.
+Il sert a piloter:
 
-## ⏱️ RÉPARTITION DU TEMPS (40 Minutes)
-1.  **[00:00 - 15:00] :** Présentation Théorique (Supports visuels)
-2.  **[15:00 - 30:00] :** Démonstration Technique Live (App + Maquette + IA)
-3.  **[30:00 - 40:00] :** Session de Questions / Réponses (Interactivité)
+- ton discours,
+- la demonstration live,
+- la gestion des incidents,
+- la defense technique en Q/R,
+- et la cloture avec impact.
 
----
-
-## 🖼️ PARTIE 1 : PRÉSENTATION THÉORIQUE (15 MIN)
-
-### [00:00 - 02:30] Slide 1 : Le Protocole & L'Identité
-*   **Contenu du Slide :** Logo OVYON animé, Titre complet, Votre Nom, Nom de l'encadreur, Date.
-*   **Action :** Tenez-vous droit, mains visibles, regard circulaire sur le jury.
-*   **Discours :** "Monsieur le Président, membres du jury, honorables invités. Nous vivons une ère où la maison devient intelligente, mais cette intelligence est souvent étrangère à nos réalités. Aujourd'hui, je vous présente OVYON Control : le premier écosystème domotique conçu en Afrique, pour l'Afrique."
-*   **Réaction Jury :** Prise de notes initiale, attention attirée par le logo professionnel.
-
-### [02:30 - 05:00] Slide 2 : La Fracture Numérique (Problématique)
-*   **Contenu du Slide :** Graphique montrant le coût des solutions importées vs revenu moyen. Icônes barrées : Wi-Fi instable, Langue Anglaise, Cloud étranger.
-*   **Discours :** "Pourquoi la domotique échoue-t-elle chez nous ? Trois barrières : le coût exorbitant, la dépendance à une connexion internet constante, et la barrière de la langue. Nos parents ne devraient pas avoir à apprendre l'anglais pour allumer leur salon."
-*   **Réaction Public :** Hochements de tête (votre famille comprend l'utilité concrète).
-
-### [05:00 - 08:00] Slide 3 : La Réponse OVYON (Solution)
-*   **Contenu du Slide :** Trois piliers : 1. Souveraineté (Offline SQLite), 2. Accessibilité (Multilingue), 3. Résilience (Low Power MQTT).
-*   **Discours :** "OVYON est localisé. Les données restent dans la maison via une base SQLite embarquée. Il parle Fon, Yoruba et Français. Il consomme peu grâce à une optimisation fine du protocole MQTT sur microcontrôleurs ESP32."
-
-### [08:00 - 12:00] Slide 4 : Architecture "Genius" (Technique)
-*   **Contenu du Slide :** Schéma technique : Frontend (React/Vite) <-> Broker MQTT (Aedes) <-> Backend (Node.js/SQLite) <-> IA (Gemini API/Python).
-*   **Discours :** "Techniquement, nous avons un système hybride. Le Frontend est une PWA ultra-légère. Le Backend assure la persistance réelle. L'IA Aion utilise Gemini 1.5-Flash pour le raisonnement sémantique tout en gardant une réactivité locale par Regex."
-*   **Réaction Jury :** Regard attentif sur la complexité du stack technologique.
-
-### [12:00 - 15:00] Slide 5 : Sécurité & Perspectives
-*   **Contenu du Slide :** Visualisation de l'API WebAuthn (Biométrie), Appairage Bluetooth/NFC, Vision 2030 (Smart City).
-*   **Discours :** "Nous ne faisons pas que de la domotique, nous faisons de la confiance. L'authentification biométrique sécurise chaque accès. OVYON est une plateforme évolutive prête pour l'industrialisation."
+Utilise-le comme un conducteur scene + un plan de secours.
 
 ---
 
-## 🛠️ PARTIE 2 : PRÉSENTATION PRATIQUE (15 MIN)
+## 1) Format cible de la soutenance
 
-### [15:00 - 16:30] L'Effet "Wow" Initial (SplashScreen & Map)
-*   **Action :** Ouvrez l'application. L'animation SplashScreen staggered "OVYON" s'exécute. Passez sur le Plan 2D.
-*   **Discours :** "Regardez cette interface. Pas de scrollbars, un design épuré. Le plan 2D que vous voyez est généré dynamiquement à partir de ma base de données SQLite."
-*   **Geste :** Touchez une lampe sur l'écran. La LED physique sur la maquette s'allume instantanément.
+- Duree totale recommandee: **45 minutes**
+- Segment 1: **Presentation theorique (15 min)**
+- Segment 2: **Demonstration technique live (15 min)**
+- Segment 3: **Questions / Reponses (15 min)**
 
-### [16:30 - 20:00] Intelligence Artificielle AION
-*   **Action :** Allez sur l'onglet Voice.
-*   **Discours :** "Je vais parler à ma maison en langue locale."
-*   **Commande 1 :** "Ma lampu salon" (Fon).
-*   **Effet :** Waveform premium s'active, couleur orange. La lumière s'allume.
-*   **Commande 2 (Complexe) :** "Aion, je vais dormir."
-*   **Effet :** Waveform passe au bleu (Aion réfléchit via Gemini). Toutes les lumières s'éteignent, la porte se ferme.
-*   **Réaction Jury :** Surprise visible devant la compréhension sémantique de la phrase.
+Si le jury impose 40 min:
 
-### [20:00 - 23:00] Appairage & Biométrie (La Preuve Technique)
-*   **Action :** Allez dans Paramètres -> Connexion Locale. Cliquez sur "Lancer un Appairage".
-*   **Effet :** Animation de recherche Bluetooth. Une liste d'appareils apparaît. Sélectionnez-en un.
-*   **Discours :** "L'installation d'un nouvel objet ne nécessite aucune compétence technique. C'est du Plug & Play local."
-*   **Action :** Activez la Biométrie. Tentez d'ouvrir la porte. Posez votre doigt sur le capteur du téléphone (ou reconnaissance faciale).
-*   **Effet :** Toast "Identité confirmée", la porte s'ouvre.
-
-### [23:00 - 27:00] Admin, Logs & Mode Panique
-*   **Action :** Montrez les Logs Admin.
-*   **Discours :** "Voici le cœur du réacteur. Chaque message MQTT, chaque erreur, chaque accès est tracé ici. C'est l'outil de maintenance."
-*   **Action :** Activez le bouton rouge "PANIQUE" sur le Dashboard.
-*   **Effet :** Alerte sonore (Feedback Engine), toutes les lumières clignotent, la porte se verrouille.
-*   **Discours :** "En cas d'urgence, un seul clic sécurise l'intégralité du foyer."
-
-### [27:00 - 30:00] Analytics & Économie
-*   **Action :** Allez sur l'onglet Stats.
-*   **Discours :** "Ici, les données sont réelles. Le graphique montre la charge sur 24h. Le système calcule ma facture estimée en FCFA pour éviter les surprises en fin de mois."
+- Theorie: 13 min
+- Demo: 15 min
+- Q/R: 12 min
 
 ---
 
-## ⚠️ GESTION DES INCIDENTS (PLAN DE SECOURS)
+## 2) Message central a marteler
 
-| Scénario Critique | Solution "Expert" à dire au jury |
-| :--- | :--- |
-| **L'IA Gemini est lente** | "Le mode Cloud subit une latence réseau, mais voyez la puissance du mode local (Regex) qui répond instantanément." |
-| **Un ESP32 se déconnecte** | "Le système détecte l'absence de 'Heartbeat'. Il va tenter une reconnexion automatique en background, c'est la résilience MQTT." |
-| **La démo plante** | "C'est l'intérêt du bouton 'Réinitialiser' que j'ai prévu. Une remise à zéro d'usine pour garantir la stabilité." (Faites le reset avec le sourire). |
-| **Biométrie échoue** | "Le navigateur exige une connexion HTTPS sécurisée pour WebAuthn, je vais utiliser le code de secours." |
+"OVYON Control n est pas un prototype gadget. C est une architecture domotique locale, resiliente, multilingue et faible consommation, adaptee au contexte africain."
 
----
+Trois promesses a repeter:
 
-## ❓ QUESTIONS POSSIBLES & RÉPONSES STRATÉGIQUES
-
-**Q1 : Comment gérez-vous la panne de courant, fréquente en Afrique ?**
-*   **R :** "Le système est basé sur des ESP32 alimentés en 5V. Il peut tourner sur une simple batterie Powerbank ou un petit panneau solaire, contrairement aux systèmes énergivores sur PC."
-
-**Q2 : Le Fon et le Yoruba sont-ils gérés par Gemini ou en local ?**
-*   **R :** "Les deux ! Les mots-clés vitaux sont en local (Regex) pour fonctionner sans internet. Gemini intervient pour la traduction de phrases naturelles plus nuancées."
-
-**Q3 : SQLite est-il suffisant pour une maison entière ?**
-*   **R :** "Absolument. Pour des milliers d'événements domotiques, SQLite est bien plus rapide et léger qu'un serveur SQL classique, tout en garantissant l'intégrité des données."
+1. **Souverainete locale**: donnees en local (SQLite), pas de dependance cloud pour le coeur.
+2. **Accessibilite reelle**: commandes en francais et langues locales.
+3. **Robustesse terrain**: MQTT + ESP32 + logique locale = service meme en conditions reseau degradees.
 
 ---
 
-## 💡 CHECKLIST DU MATIN DE LA SOUTENANCE
-1.  [ ] Charger les Powerbanks des ESP32 à 100%.
-2.  [ ] Vérifier l'adresse IP du PC et la mettre dans `wifi_config.h`.
-3.  [ ] Tester la clé API Gemini (solde du compte Google Cloud).
-4.  [ ] Avoir une vidéo de démo enregistrée sur le bureau (au cas où tout brûle).
-5.  [ ] **Sourire :** Vous êtes le créateur, vous êtes l'expert du système.
+## 3) Preparation avant soutenance
+
+## 3.1 Check J-7 a J-2
+
+- Verifier que tout le systeme est testable de bout en bout.
+- Geler les features: plus de nouvelles fonctions de derniere minute.
+- Nettoyer le repo et preparer une branche stable de demo.
+- Enregistrer une video de demo complete (2 a 4 min) en plan B.
+- Preparer un jeu de captures ecran de secours (dashboard, voice, admin, analytics).
+
+## 3.2 Check J-1
+
+- Rejouer la soutenance en conditions reelles avec chronometre.
+- Tester la maquette physique (lumiere, porte, fenetre, prises) 3 fois de suite.
+- Tester biometrie, appairage, mode panique.
+- Verifier la cle API Gemini et son quota.
+- Charger tous les appareils: laptop, smartphone, powerbanks.
+
+## 3.3 Check Jour J (H-2 a H-0)
+
+- Arriver en avance, installer le poste demo.
+- Desactiver MAJ auto et notifications systeme.
+- Passer en mode Ne pas deranger.
+- Verifier audio sortie + micro.
+- Ouvrir les fenetres/onglets necessaires avant entree du jury.
+- Garder un hotspot mobile pret.
+- Avoir un cable HDMI de secours + adaptateur.
 
 ---
-**FIN DU SCRIPT - MENTION TRÈS BIEN VISÉE.**
 
+## 4) Architecture a presenter clairement (verbal)
 
+## 4.1 Vue systeme
 
+- **Frontend**: React + TypeScript + Vite (interface utilisateur premium).
+- **Backend**: Node.js + TypeScript (API, orchestration, logique metier).
+- **Broker MQTT**: Aedes (messagerie IoT faible latence).
+- **Persistence**: SQLite local (historique, etat devices, regles, logs).
+- **AI Voice**: Python (`aion.py`, `aion_brain.py`) avec mode local + mode semantique.
+- **Firmware**: ESP32 (Door, Lights, Window, Plugs, Environment).
 
+## 4.2 Argument technique simple
 
+- MQTT pour minimiser trafic et consommation.
+- SQLite pour robustesse locale sans infra lourde.
+- IA hybride:
+  - local regex = rapide et tolerant aux pannes,
+  - cloud semantique = intelligence contextuelle.
 
+---
 
+## 5) Script minute par minute - Segment 1 (Theorie, 15 min)
 
+## [00:00 - 01:30] Ouverture
 
+**Objectif:** installer autorite + vision.
 
+**Texte recommande:**
+"Monsieur le President, membres du jury, je vous presente OVYON Control, un ecosysteme domotique local adapte a notre realite: cout, connectivite, langue, securite."
 
+**A faire:**
 
+- posture stable,
+- debit lent,
+- contact visuel circulaire.
 
+## [01:30 - 04:00] Problematique
 
+**A montrer:** cout des solutions importees, dependance internet, barriere linguistique.
 
+**Texte recommande:**
+"Le probleme n est pas seulement technique. Il est contextuel: une maison intelligente qui tombe quand internet tombe n est pas vraiment intelligente chez nous."
 
+## [04:00 - 07:00] Solution OVYON
 
+**A montrer:** les 3 piliers (local, multilingue, low-power).
 
-    # 🎭 SIMULATION INTÉGRALE : SOUTENANCE OVYON CONTROL (ÉDITION ULTIME)
-        **Thème :** Conception d'un écosystème domotique localisé à faible consommation basé sur une application mobile, des objets connectés
-    NFC/Bluetooth et une IA vocale embarquée.
-        ---
-        ## ⏱️ RÉPARTITION STRATÉGIQUE DU TEMPS
-    1.  **[00:00 - 15:00] :** Présentation Théorique (La vision et l'architecture)
-    2.  **[15:00 - 30:00] :** Démonstration Pratique (Le "Wow Effect" en live)
-    3.  **[30:00 - 45:00] :** Questions / Réponses (La défense technique)
-        ---
-        ## 🖼️ PARTIE 1 : PRÉSENTATION THÉORIQUE (15 MIN)
-        ### [00:00 - 03:00] Slide 1 : Ouverture & Cadre Institutionnel
-    *   **Contenu du Slide :**
-        *   Logo OVYON (Premium, haute résolution)
-        *   Identité de l'étudiant, Maître de mémoire, Université.
-        *   Image de fond : Une maison africaine moderne stylisée.
-    *   **Action :** Démarrez d'une voix posée, regardez chaque membre du jury dans les yeux.
-    *   **Discours :** "Monsieur le Président du jury, éminents membres, chers parents et amis. Je me tiens devant vous aujourd'hui pour      
-       présenter OVYON Control. Dans un monde où la technologie est devenue omniprésente, une question demeure : comment l'adapter à nos réalités
-       locales ? Ce projet n'est pas seulement un gadget technique, c'est une infrastructure de vie pensée pour la souveraineté numérique et     
-       l'inclusion linguistique."
-    *   **Réaction Jury :** Intérêt marqué pour le terme "souveraineté numérique".
-    
-    ### [03:00 - 06:00] Slide 2 : La Fracture Domotique (Le Problème)
-    *   **Contenu du Slide :**
-        *   Iconographie : Dollar ($) barré, Nuage (Cloud) barré, Drapeau anglais barré.
-        *   Bullet points : Coût d'importation (x3), Dépendance Internet (80% de latence), Barrière linguistique (Français vs Langues locales)
-    *   **Discours :** "Actuellement, installer une domotique européenne en Afrique est un défi : les données partent sur des serveurs        
-       étrangers, le coût est prohibitif, et le système ne comprend pas nos grands-parents qui parlent Fon ou Yoruba. Si Internet tombe, la maiso
-       devient 'stupide'. OVYON élimine ces dépendances."
-    *   **Réaction Jury :** Certains membres notent l'argument sur la dépendance Internet.
-    
-    ### [06:00 - 09:00] Slide 3 : Architecture "Low Power" & Resiliente
-    *   **Contenu du Slide :**
-        *   Diagramme de flux : ESP32 (MQTT) <-> Serveur Local <-> SQLite.
-        *   Texte : Protocole MQTT (léger), Persistence SQLite (local), Absence de cloud.
-    *   **Discours :** "Pour garantir une faible consommation, j'ai choisi le protocole MQTT. Contrairement au HTTP, il envoie des paquets    
-       minuscules, idéal pour l'autonomie des batteries. Pour la sécurité, aucune donnée ne sort de la maison : j'utilise une base de données    
-       SQLite embarquée sur le serveur local."
-    *   **Réaction Jury :** Un membre technique vérifie si SQLite est bien mentionné pour la persistence.
-    
-    ### [09:00 - 12:00] Slide 4 : L'Intelligence Artificielle AION
-    *   **Contenu du Slide :**
-        *   Schéma hybride : Moteur de Regex (Local) + Gemini 1.5 (Cloud Intelligent).
-        *   Liste des langues : Français, Fon, Yoruba.
-    *   **Discours :** "Le cerveau, c'est AION. Une IA vocale hybride. Pour les ordres simples comme 'allume la lumière', le traitement est   
-       instantané et offline. Pour les demandes complexes comme 'Aion, je vais dormir', le système fait appel à l'API Gemini pour une compréhensi
-       sémantique profonde."
-    *   **Réaction Public :** Curiosité sur la partie multilingue.
-    
-    ### [12:00 - 15:00] Slide 5 : Sécurité & NFC/Bluetooth
-    *   **Contenu du Slide :**
-        *   Visuel : Une empreinte digitale scannant un smartphone.
-        *   Termes clés : WebAuthn API, Pairage NFC rapide, Bluetooth LE.
-    *   **Discours :** "Nous sécurisons l'accès physique via la biométrie native du smartphone. L'ajout d'un nouvel équipement se fait par    
-       simple contact NFC ou scan Bluetooth, simplifiant l'installation pour l'utilisateur non-technique."
-    
-    ## 🛠️ PARTIE 2 : DÉMONSTRATION PRATIQUE (15 MIN)
-    
-    ### [15:00 - 17:00] Lancement & Design Premium
-    *   **Action :** Ouvrez l'application sur tablette/écran géant.
-    *   **Visuel :** SplashScreen OVYON fluide, chargement des données SQLite.
-    *   **Discours :** "Bienvenue dans l'interface OVYON. Notez l'absence de barres de défilement pour une immersion totale. L'esthétique     
-       Glassmorphism n'est pas seulement belle, elle est conçue pour la lisibilité."
-    *   **Effet :** Montrez le Plan 2D qui se dessine selon les objets en base.
-    
-    ### [17:00 - 20:00] Le Contrôle Tactile & Feedback Haptique
-    *   **Action :** Touchez l'icône de la cuisine sur le plan 2D.
-    *   **Effet :** La LED cuisine sur la maquette s'allume. Le son "Toggle" retentit.
-    *   **Discours :** "Chaque pression génère un retour sonore et haptique. L'allumage sur la maquette utilise le PWM (Pulse Width Modulation
-       pour un effet de fondu luxueux, réduisant aussi le choc électrique sur le composant."
-    
-    ### [20:00 - 24:00] Démo IA : Le Choc Multilingue
-    *   **Action :** Ouvrez l'onglet Voice.
-    *   **Commande 1 :** "Ma lampu salon" (Allume le salon en Fon).
-    *   **Effet :** Waveform réagit, la lumière s'allume.
-    *   **Commande 2 :** "Aion, je vais dormir."
-    *   **Effet :** Aion répond : "D'accord, je sécurise la maison et j'éteins tout. Bonne nuit." (Lumières OFF, Porte se ferme).
-    *   **Discours :** "Voyez comment l'IA a interprété 'dormir' comme une séquence d'actions sécuritaires sans que je n'aie à les lister."   
-    
-    ### [24:00 - 27:00] Pairing & Biométrie
-    *   **Action :** Allez dans Paramètres -> Lancer Appairage.
-    *   **Effet :** Liste d'appareils Bluetooth trouvés. Sélectionnez-en un.
-    *   **Action :** Activez la biométrie dans les réglages. Tentez d'ouvrir la porte principale.
-    *   **Visuel :** Le système demande l'empreinte. Validez sur le smartphone.
-    *   **Discours :** "Sans mon empreinte, personne ne peut ouvrir cette porte, même via l'application. C'est la sécurité bancaire appliquée 
-       la maison."
-    
-    ### [27:00 - 30:00] Console Admin & Panic Mode
-    *   **Action :** Affichez les logs admin (Admin Console).
-    *   **Action :** Cliquez sur le bouton "PANIQUE" rouge.
-    *   **Effet :** Alarme sonore, stroboscope sur la maquette, verrouillage total.
-    *   **Discours :** "En situation de stress, l'utilisateur n'a pas le temps de chercher. Ce mode force le système dans son état le plus    
-       sécurisé."
-    
-    ## ⚠️ GESTION DES ACCIDENTS (LES SOLUTIONS DE L'EXPERT)
-    
-    | Accident Possible | Discours de rattrapage | Solution Technique |
-    | :--- | :--- | :--- |
-    | **Pas de Wi-Fi** | "Le système est conçu pour être résilient." | Basculez sur le point d'accès mobile de secours. |
-    | **Gemini hors-ligne** | "L'intelligence locale prend le relais." | Utilisez les commandes Regex directes (Allume salon). |
-    | **La porte bloque** | "Le système détecte une résistance mécanique." | Utilisez le bouton 'STOP' ou forcez la position via le slider. | 
-    | **SQLite Erreur** | "Une corruption mineure, utilisons le Reset." | Bouton 'Réinitialiser' dans Paramètres (Factory Reset). |
-    | **Public trop bruyant** | "Aion filtre les bruits ambiants..." | Rapprochez le micro ou tapez la commande au clavier. |
-   
-    ## ❓ QUESTIONS / RÉPONSES : LA DÉFENSE (10 MIN)
-   
-    **Q1 : Pourquoi ne pas avoir utilisé de serveurs distants ?**
-    *   **Réponse :** "Pour trois raisons : 1. La vie privée, car ce qui se passe chez vous reste chez vous. 2. La latence, car 200ms de délai
-       local valent mieux que 3 secondes via un serveur aux USA. 3. La continuité de service en zone rurale."
-   
-    **Q2 : Le coût de revient de votre solution ?**
-    *   **Réponse :** "Un nœud OVYON coûte moins de 10 000 FCFA à produire, contre 45 000 FCFA pour une solution importée de qualité
-       équivalente."
-   
-    **Q3 : Comment le système gère-t-il les conflits de règles ?**
-    *   **Réponse :** "Le backend priorise toujours les actions humaines sur les automatisations. Si je force l'extinction, le capteur ne pour
-       pas rallumer immédiatement sans mon accord."
-   
-    **Q4 : Votre projet est-il scalable ?**
-    *   **Réponse :** "Oui, grâce au protocole MQTT et à l'ID unique des devices, nous pouvons gérer jusqu'à 255 nœuds sur un simple réseau   
-       local domestique."
-   
-    ## 🏁 DISCOURS DE CLÔTURE (LE FINAL)
-    *   **Action :** Éteignez l'appli, regardez votre famille, puis le jury.
-    *   **Discours :** "OVYON Control n'est que le début d'une vision plus large pour les Smart Cities africaines. En maîtrisant le hardware e
-       l'IA, nous ne sommes plus de simples consommateurs, mais des créateurs de solutions. Merci de votre attention, j'attends avec impatience v
-       critiques et suggestions."
-   
-    ## 📋 CHECKLIST TECHNIQUE (AVANT DE MONTER SUR SCÈNE)
-    *   **Hardware :** Vérifier que les servos ne sont pas entravés.
-    *   **Logiciel :** Vider les logs de `ovyon_control.db` pour une démo propre.
-    *   **Réseau :** Désactiver les mises à jour Windows/Mac pour garder toute la bande passante.
-    *   **Clé API :** Vérifier que le quota Gemini est suffisant.
-    *   **Audio :** Tester le volume de sortie pour que le jury entende Aion répondre.
-   
-    **STATUT DU DOCUMENT : PRÊT POUR LA SOUTENANCE.**
+**Texte recommande:**
+"OVYON repond avec une architecture locale, multi-niveaux, capable de continuer a servir meme en mode degrade."
+
+## [07:00 - 11:30] Architecture technique
+
+**A montrer:** schema Frontend <-> Backend <-> MQTT <-> ESP32 + SQLite + AI.
+
+**Texte recommande:**
+"La valeur de cette architecture est dans l equilibre entre performance locale, simplicite de maintenance et evolutivite."
+
+**Points jury techniques:**
+
+- pourquoi SQLite,
+- pourquoi MQTT,
+- strategie de reconnexion,
+- logique de priorite commande humaine vs automation.
+
+## [11:30 - 15:00] Securite + impact
+
+**A montrer:** biometrie, logs admin, mode panique, perspectives smart building.
+
+**Texte recommande:**
+"Nous ne controlons pas seulement des ampoules; nous gerons la confiance et la continuite de service domestique."
+
+---
+
+## 6) Script minute par minute - Segment 2 (Demo live, 15 min)
+
+## [15:00 - 16:30] Lancement app
+
+**Action:** ouvrir l application.
+
+**Dire:**
+"Je demarre par l experience utilisateur: navigation fluide, etat systeme en direct, architecture orientee usage."
+
+## [16:30 - 19:00] Controle tactile maquette
+
+**Action:** allumer/eteindre une lumiere depuis UI.
+
+**Validation visible:** maquette reagit immediatement.
+
+**Dire:**
+"La boucle complete UI -> MQTT -> device -> retour etat fonctionne en temps reel."
+
+## [19:00 - 22:30] IA vocale
+
+**Action 1 (locale):** commande simple.
+**Action 2 (semantique):** phrase naturelle (ex: je vais dormir).
+
+**Dire:**
+"Le mode local garantit la reactivite; le mode semantique apporte la comprehension contextuelle."
+
+## [22:30 - 25:00] Appairage + biometrie
+
+**Action:** mode appairage, selection device, tentative ouverture porte avec verification biometrie.
+
+**Dire:**
+"On reduit la friction d installation tout en securisant les actions critiques."
+
+## [25:00 - 27:30] Console admin
+
+**Action:** afficher logs systeme en direct.
+
+**Dire:**
+"Chaque action importante est tracable: essentiel pour audit, maintenance et diagnostic."
+
+## [27:30 - 30:00] Mode panique + analytics
+
+**Action:** declencher mode panique puis montrer stats/consommation.
+
+**Dire:**
+"Le systeme combine securite immediate et pilotage energitique sur la duree."
+
+---
+
+## 7) Script minute par minute - Segment 3 (Q/R, 15 min)
+
+## [30:00 - 33:00] Questions architecture
+
+Repondre court, structure:
+
+- Contexte,
+- Choix,
+- Trade-off,
+- Resultat.
+
+## [33:00 - 36:00] Questions securite
+
+Toujours citer:
+
+- controle d acces,
+- verification identite,
+- journalisation,
+- plan de reprise.
+
+## [36:00 - 39:00] Questions scalabilite
+
+Expliquer:
+
+- ajout progressif des noeuds,
+- separation des couches,
+- migration possible de persistence si besoin.
+
+## [39:00 - 43:00] Questions cout / industrialisation
+
+Donner un angle concret:
+
+- cout d entree,
+- maintenance,
+- simplicite de deploiement local.
+
+## [43:00 - 45:00] Cloture
+
+"OVYON est deja fonctionnel, mesurable et defendable techniquement. La suite est l industrialisation et le deploiement a echelle terrain."
+
+---
+
+## 8) Banque de questions jury (avec reponses pretes)
+
+## Q1. Pourquoi pas un cloud complet?
+
+**R:** Parce que la disponibilite reseau n est pas garantie partout. Le cloud peut enrichir, mais le coeur doit rester local pour la continuite de service.
+
+## Q2. Pourquoi SQLite et pas PostgreSQL?
+
+**R:** SQLite est adapte au contexte mono-instance local, simple a deployer, faible empreinte, excellent pour la soutenance et le terrain domestique.
+
+## Q3. Que se passe-t-il si Gemini est indisponible?
+
+**R:** Le systeme degrade proprement vers les commandes locales regex. Les fonctions essentielles restent operationnelles.
+
+## Q4. Comment gerer un conflit automation vs commande manuelle?
+
+**R:** Priorite a l action humaine immediate. Les regles automatiques ne doivent pas annuler une commande explicite utilisateur.
+
+## Q5. Comment securisez-vous l acces sensible?
+
+**R:** Verification biometrie pour actions critiques + trace dans logs admin + separation claire commande/etat.
+
+## Q6. Quel est le principal risque actuel?
+
+**R:** Dependance partielle au reseau pour les fonctions semantiques cloud. Mitigee par le mode local et plan de reprise.
+
+## Q7. Comment passer a l echelle?
+
+**R:** Standardiser les topics MQTT, versionner les contrats de messages, et introduire un stockage plus robuste si volume multi-sites.
+
+---
+
+## 9) Gestion des incidents en direct (playbook)
+
+| Incident          | Signal visible           | Reponse orale immediate                                                | Action concrete                        |
+| ----------------- | ------------------------ | ---------------------------------------------------------------------- | -------------------------------------- |
+| IA cloud lente    | latence reponse vocale   | "Je bascule sur mode local pour montrer la resilience."                | lancer commande locale                 |
+| Device offline    | pas de reaction maquette | "Le monitoring l a detecte, je montre la reprise."                     | relancer device ou fallback autre node |
+| Biometrie refusee | echec auth               | "Comportement normal en mode securise, je passe en procedure secours." | code secours/demo alternative          |
+| UI figee          | freeze temporaire        | "Je redemarre le module interface, la couche backend reste active."    | refresh app, conserver backend         |
+| Reseau coupe      | pertes cloud             | "Le coeur local continue."                                             | hotspot / mode local                   |
+
+Regle d or:
+
+- ne jamais paniquer,
+- expliquer calmement,
+- transformer l incident en preuve de robustesse.
+
+---
+
+## 10) Checklist technique finale (pre-scene)
+
+## 10.1 Logiciel
+
+- Frontend: build OK, lint OK, tests OK.
+- Backend: build OK, tests OK.
+- AI: syntaxe Python OK.
+- Script de verification pret: `scripts/verify-soutenance.ps1`.
+
+## 10.2 Materiel
+
+- ESP32 alimentes,
+- maquette testee,
+- smartphone charge,
+- cable HDMI + adaptateur + rallonge.
+
+## 10.3 Reseau
+
+- Wi-Fi principal valide,
+- hotspot de secours pret,
+- DNS stable,
+- mode local testable sans internet.
+
+## 10.4 Contenu
+
+- slides ordonnees,
+- demo video plan B,
+- captures d ecran plan C,
+- fiche Q/R imprimee.
+
+---
+
+## 11) Checklist posture et prise de parole
+
+- Parler en blocs courts de 20 a 40 secondes.
+- Une idee forte par slide.
+- Eviter jargon inutile; expliquer valeur avant details.
+- Si question piege:
+  1. reformuler,
+  2. donner fait verifiable,
+  3. reconnaitre limite,
+  4. proposer evolution.
+
+Formule utile:
+"Aujourd hui, voici ce qui est implemente et valide. Voici ce qui est prevu en extension."
+
+---
+
+## 12) Grille d auto-evaluation avant passage
+
+Note chaque axe de 0 a 5:
+
+- Clarte du probleme,
+- Pertinence architecture,
+- Qualite demonstration,
+- Maitrise incidents,
+- Qualite defense Q/R,
+- Gestion du temps,
+- Impact final.
+
+Si un axe < 4:
+
+- refaire repetition ciblee 20 min sur cet axe.
+
+---
+
+## 13) Mini script de cloture (memoriser)
+
+"OVYON Control apporte une reponse realiste a un besoin local: automatiser, securiser et piloter la maison avec des contraintes terrain reelles. L architecture est deja fonctionnelle, testee et defendable. La prochaine etape est le passage a une industrialisation modulaire et deploiement multi-sites. Merci."
+
+---
+
+## 14) Annexes utiles
+
+## 14.1 Commandes de verification (poste dev)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\verify-soutenance.ps1 -SkipFirmware
+```
+
+Avec firmware (si `arduino-cli` + core ESP32 installes):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\verify-soutenance.ps1
+```
+
+## 14.2 Sequence de demo conseillee (ordre exact)
+
+1. Ouverture app
+2. Controle lumiere
+3. Commande vocale locale
+4. Commande vocale semantique
+5. Appairage
+6. Biometrie
+7. Logs admin
+8. Mode panique
+9. Analytics
+
+---
+
+## 15) Verdict de preparation
+
+Tu es pret si et seulement si:
+
+- tu peux finir ta demo complete en 15 min sans hesiter,
+- tu peux repondre a 10 questions techniques sans lire,
+- tu peux encaisser 2 incidents consecutifs sans perdre le fil narratif.
+
+**Objectif soutenance:** convaincre que OVYON est deja un systeme operationnel, et pas une simple idee.

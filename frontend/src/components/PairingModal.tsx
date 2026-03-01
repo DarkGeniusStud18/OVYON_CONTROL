@@ -22,7 +22,7 @@ const PairingModal = () => {
       }, 3500);
       return () => clearTimeout(timer);
     }
-  }, [isPairing, pairingStatus]);
+  }, [isPairing, pairingStatus, setDiscoveredDevices, setPairingStatus]);
 
   const handleSelect = (device: any) => {
     feedback.tap();

@@ -1,52 +1,74 @@
-import { stateManager } from '../devices/stateManager';
-import logger from '../services/logger';
+import { stateManager } from "../devices/stateManager";
+import logger from "../services/logger";
 
 async function runTests() {
-    logger.info("🧪 DÉBUT DES TESTS SYSTÈME OVYON");
+  logger.info("SYSTEM TESTS START");
+  await stateManager.ready;
 
-    // 1. Test Device Creation
-    logger.info("Test 1: Création d'un appareil...");
-    const testDevice = { id: 'test_light_1', type: 'light', name: 'Test Light', state: { power: 'off' } };
-    await stateManager.addDevice(testDevice);
-    
-    const devices = stateManager.getAllDevices();
-    const created = devices.find(d => d.id === 'test_light_1');
-    if (created) logger.info("✅ Appareil créé avec succès");
-    else logger.error("❌ Échec création appareil");
+  let failed = false;
+  const check = (condition: boolean, success: string, failure: string) => {
+    if (condition) {
+      logger.info(`PASS: ${success}`);
+      return;
+    }
+    failed = true;
+    logger.error(`FAIL: ${failure}`);
+  };
 
-    // 2. Test Rule Creation
-    logger.info("Test 2: Création d'une règle...");
-    const testRule = { 
-        id: 'rule_test', 
-        name: 'Test Rule', 
-        triggerDeviceId: 'test_light_1', 
-        value: 'on', 
-        actionDeviceId: 'test_light_1', 
-        enabled: true 
-    };
-    await stateManager.addRule(testRule);
-    
-    const rules = stateManager.getRules();
-    const ruleCreated = rules.find(r => r.id === 'rule_test');
-    if (ruleCreated) logger.info("✅ Règle créée avec succès");
-    else logger.error("❌ Échec création règle");
+  logger.info("Test 1: create device");
+  const testDevice = {
+    id: "test_light_1",
+    type: "light",
+    name: "Test Light",
+    state: { power: "off" },
+  };
+  await stateManager.addDevice(testDevice);
 
-    // 3. Test Panic Mode
-    logger.info("Test 3: Mode Panique...");
-    await stateManager.triggerPanicMode();
-    const logs = stateManager.getSystemLogs();
-    if (logs.some(l => l.includes("PANIQUE"))) logger.info("✅ Mode Panique loggué et exécuté");
-    else logger.error("❌ Échec Mode Panique");
+  const devices = stateManager.getAllDevices();
+  const created = devices.find((d) => d.id === "test_light_1");
+  check(!!created, "device created", "device creation failed");
 
-    // 4. Test Reset
-    logger.info("Test 4: Réinitialisation Système...");
-    await stateManager.resetSystem();
-    const devicesAfterReset = stateManager.getAllDevices();
-    if (devicesAfterReset.length === 0) logger.info("✅ Système réinitialisé (0 appareils)");
-    else logger.error(`❌ Échec Reset (${devicesAfterReset.length} appareils restants)`);
+  logger.info("Test 2: create rule");
+  const testRule = {
+    id: "rule_test",
+    name: "Test Rule",
+    triggerDeviceId: "test_light_1",
+    value: "on",
+    actionDeviceId: "test_light_1",
+    enabled: true,
+  };
+  await stateManager.addRule(testRule);
 
-    logger.info("🎉 TOUS LES TESTS TERMINÉS");
+  const rules = stateManager.getRules();
+  const ruleCreated = rules.find((r) => r.id === "rule_test");
+  check(!!ruleCreated, "rule created", "rule creation failed");
+
+  logger.info("Test 3: panic mode");
+  await stateManager.triggerPanicMode();
+  const logs = stateManager.getSystemLogs();
+  check(
+    logs.some((l: string) => l.includes("PANIQUE") || l.includes("PANIC")),
+    "panic mode logged",
+    "panic mode not logged"
+  );
+
+  logger.info("Test 4: system reset");
+  await stateManager.resetSystem();
+  const devicesAfterReset = stateManager.getAllDevices();
+  check(
+    devicesAfterReset.length === 0,
+    "system reset removed all devices",
+    `system reset failed (${devicesAfterReset.length} devices remaining)`
+  );
+
+  if (failed) {
+    throw new Error("System tests failed");
+  }
+
+  logger.info("SYSTEM TESTS PASSED");
 }
 
-// Mocking DB for standalone run if needed, but here we run against real dev DB logic
-runTests().catch(console.error);
+runTests().catch((error) => {
+  logger.error("SYSTEM TESTS ERROR", error);
+  process.exitCode = 1;
+});

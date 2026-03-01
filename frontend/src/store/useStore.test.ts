@@ -1,58 +1,68 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useStore } from './useStore';
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Simulation de l'environnement navigateur
-global.fetch = vi.fn();
-global.confirm = vi.fn(() => true);
+vi.mock("../utils/feedback", () => ({
+  feedback: {
+    tap: vi.fn(),
+    toggle: vi.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+    notify: vi.fn(),
+  },
+}));
 
-describe('OVYON Security Store Tests', () => {
-  
+vi.stubGlobal("fetch", vi.fn());
+vi.stubGlobal("confirm", vi.fn(() => true));
+vi.stubGlobal("localStorage", {
+  getItem: vi.fn(() => "false"),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+  key: vi.fn(),
+  length: 0,
+});
+
+const { useStore } = await import("./useStore");
+
+describe("OVYON Security Store Tests", () => {
   beforeEach(() => {
-    // Reset du store avant chaque test
     useStore.setState({
       settings: {
-        brokerUrl: 'test',
-        mqttUser: 'test',
+        brokerUrl: "test",
+        mqttUser: "test",
         notificationsEnabled: true,
         securityAlerts: true,
         biometricsEnabled: false,
         panicButtonEnabled: false,
-        adminModeEnabled: false // Ajouté pour corriger l'erreur de type
+        adminModeEnabled: false,
       },
-      devices: []
+      devices: [],
     });
   });
 
-  it('devrait activer le mode biométrique', () => {
+  it("enables biometrics mode", () => {
     const { updateSettings } = useStore.getState();
-    
     updateSettings({ biometricsEnabled: true });
-    
-    const settings = useStore.getState().settings;
-    expect(settings.biometricsEnabled).toBe(true);
+    expect(useStore.getState().settings.biometricsEnabled).toBe(true);
   });
 
-  it('devrait activer le bouton panique', () => {
+  it("enables panic button", () => {
     const { updateSettings } = useStore.getState();
-    
     updateSettings({ panicButtonEnabled: true });
-    
     expect(useStore.getState().settings.panicButtonEnabled).toBe(true);
   });
 
-  it('devrait vider les appareils lors du reset system', async () => {
-    // Setup initial state
-    useStore.setState({ 
-        devices: [{ id: 'test', type: 'light', name: 'Test', online: true, state: {} }] 
+  it("clears devices on reset", async () => {
+    useStore.setState({
+      devices: [{ id: "test", type: "light", name: "Test", online: true, state: {} }],
     });
 
     const { resetSystem } = useStore.getState();
-    
-    // Mock API success response
     (global.fetch as any).mockResolvedValue({ ok: true });
 
-    await resetSystem();
-    
+    resetSystem();
+    useStore.getState().confirmModal.onConfirm();
+    await Promise.resolve();
+
     expect(useStore.getState().devices).toHaveLength(0);
   });
 });

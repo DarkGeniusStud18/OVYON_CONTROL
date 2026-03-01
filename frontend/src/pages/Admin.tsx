@@ -11,7 +11,7 @@ const Admin = () => {
     fetchAdminLogs();
     const interval = setInterval(fetchAdminLogs, 2000); // Live refresh
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchAdminLogs]);
 
   // Auto-scroll vers le bas
   useEffect(() => {

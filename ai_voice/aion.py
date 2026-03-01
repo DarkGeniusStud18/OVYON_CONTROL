@@ -7,11 +7,11 @@ import paho.mqtt.client as mqtt
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-/**
+"""
  * AION GENIUS EDITION v1.0
  * Assistant vocal intelligent localisé pour le marché africain.
  * Gère le multilinguisme (Français, Fon, Yoruba) et l'intelligence contextuelle.
- */
+ """
 
 load_dotenv()
 
@@ -59,10 +59,10 @@ class AionGeniusBridge:
         else:
             logger.error(f"Erreur de connexion MQTT: {rc}")
 
-    /**
+    """
      * APPEL AU CERVEAU GEMINI
      * Utilisé pour les phrases complexes (ex: "Je vais me coucher")
-     */
+     """
     def call_gemini_brain(self, text):
         if not model: return None
         
@@ -111,11 +111,11 @@ class AionGeniusBridge:
             logger.error(f"Erreur Cerveau Gemini : {e}")
             return None
 
-    /**
+    """
      * PIPELINE DE TRAITEMENT
      * 1. On teste les mots-clés locaux (rapide)
      * 2. Si échec, on demande à Gemini (intelligent)
-     */
+     """
     def process_voice_command(self, text):
         logger.info(f"Entrée vocale reçue : '{text}'")
         text_lower = text.lower()

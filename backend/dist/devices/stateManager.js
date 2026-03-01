@@ -22,8 +22,8 @@ class StateManager {
         this.db = null;
         this.devices = new Map();
         this.rules = [];
-        this.systemLogs = []; // Logs en mémoire pour l'admin
-        this.initDatabase();
+        this.systemLogs = [];
+        this.ready = this.initDatabase();
     }
     initDatabase() {
         return __awaiter(this, void 0, void 0, function* () {

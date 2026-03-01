@@ -16,52 +16,56 @@ const stateManager_1 = require("../devices/stateManager");
 const logger_1 = __importDefault(require("../services/logger"));
 function runTests() {
     return __awaiter(this, void 0, void 0, function* () {
-        logger_1.default.info("🧪 DÉBUT DES TESTS SYSTÈME OVYON");
-        // 1. Test Device Creation
-        logger_1.default.info("Test 1: Création d'un appareil...");
-        const testDevice = { id: 'test_light_1', type: 'light', name: 'Test Light', state: { power: 'off' } };
+        logger_1.default.info("SYSTEM TESTS START");
+        yield stateManager_1.stateManager.ready;
+        let failed = false;
+        const check = (condition, success, failure) => {
+            if (condition) {
+                logger_1.default.info(`PASS: ${success}`);
+                return;
+            }
+            failed = true;
+            logger_1.default.error(`FAIL: ${failure}`);
+        };
+        logger_1.default.info("Test 1: create device");
+        const testDevice = {
+            id: "test_light_1",
+            type: "light",
+            name: "Test Light",
+            state: { power: "off" },
+        };
         yield stateManager_1.stateManager.addDevice(testDevice);
         const devices = stateManager_1.stateManager.getAllDevices();
-        const created = devices.find(d => d.id === 'test_light_1');
-        if (created)
-            logger_1.default.info("✅ Appareil créé avec succès");
-        else
-            logger_1.default.error("❌ Échec création appareil");
-        // 2. Test Rule Creation
-        logger_1.default.info("Test 2: Création d'une règle...");
+        const created = devices.find((d) => d.id === "test_light_1");
+        check(!!created, "device created", "device creation failed");
+        logger_1.default.info("Test 2: create rule");
         const testRule = {
-            id: 'rule_test',
-            name: 'Test Rule',
-            triggerDeviceId: 'test_light_1',
-            value: 'on',
-            actionDeviceId: 'test_light_1',
-            enabled: true
+            id: "rule_test",
+            name: "Test Rule",
+            triggerDeviceId: "test_light_1",
+            value: "on",
+            actionDeviceId: "test_light_1",
+            enabled: true,
         };
         yield stateManager_1.stateManager.addRule(testRule);
         const rules = stateManager_1.stateManager.getRules();
-        const ruleCreated = rules.find(r => r.id === 'rule_test');
-        if (ruleCreated)
-            logger_1.default.info("✅ Règle créée avec succès");
-        else
-            logger_1.default.error("❌ Échec création règle");
-        // 3. Test Panic Mode
-        logger_1.default.info("Test 3: Mode Panique...");
+        const ruleCreated = rules.find((r) => r.id === "rule_test");
+        check(!!ruleCreated, "rule created", "rule creation failed");
+        logger_1.default.info("Test 3: panic mode");
         yield stateManager_1.stateManager.triggerPanicMode();
         const logs = stateManager_1.stateManager.getSystemLogs();
-        if (logs.some(l => l.includes("PANIQUE")))
-            logger_1.default.info("✅ Mode Panique loggué et exécuté");
-        else
-            logger_1.default.error("❌ Échec Mode Panique");
-        // 4. Test Reset
-        logger_1.default.info("Test 4: Réinitialisation Système...");
+        check(logs.some((l) => l.includes("PANIQUE") || l.includes("PANIC")), "panic mode logged", "panic mode not logged");
+        logger_1.default.info("Test 4: system reset");
         yield stateManager_1.stateManager.resetSystem();
         const devicesAfterReset = stateManager_1.stateManager.getAllDevices();
-        if (devicesAfterReset.length === 0)
-            logger_1.default.info("✅ Système réinitialisé (0 appareils)");
-        else
-            logger_1.default.error(`❌ Échec Reset (${devicesAfterReset.length} appareils restants)`);
-        logger_1.default.info("🎉 TOUS LES TESTS TERMINÉS");
+        check(devicesAfterReset.length === 0, "system reset removed all devices", `system reset failed (${devicesAfterReset.length} devices remaining)`);
+        if (failed) {
+            throw new Error("System tests failed");
+        }
+        logger_1.default.info("SYSTEM TESTS PASSED");
     });
 }
-// Mocking DB for standalone run if needed, but here we run against real dev DB logic
-runTests().catch(console.error);
+runTests().catch((error) => {
+    logger_1.default.error("SYSTEM TESTS ERROR", error);
+    process.exitCode = 1;
+});
