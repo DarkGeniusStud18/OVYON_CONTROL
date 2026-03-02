@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
-#include "../wifi_config.h"
+#include "wifi_config.h"
 
 /**
  * NŒUD D'ÉCLAIRAGE OVYON v1.0

@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
-#include "../wifi_config.h"
+#include "wifi_config.h"
 
 /**
  * NŒUD PRISES INTELLIGENTES OVYON v1.0
@@ -97,3 +97,4 @@ void loop() {
     lastUpdate = millis();
   }
 }
+

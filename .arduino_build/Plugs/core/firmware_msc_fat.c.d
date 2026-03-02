@@ -1,0 +1,3 @@
+D:\AA_Project\OVYON_CONTROL\.arduino_build\Plugs\core\firmware_msc_fat.c.o: \
+ C:\Users\HP\AppData\Local\Arduino15\packages\arduino\hardware\esp32\2.0.18-arduino.5\cores\esp32\firmware_msc_fat.c \
+ C:\Users\HP\AppData\Local\Arduino15\packages\arduino\hardware\esp32\2.0.18-arduino.5\cores\esp32\firmware_msc_fat.h

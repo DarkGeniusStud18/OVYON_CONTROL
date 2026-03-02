@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ESP32Servo.h>
-#include "../wifi_config.h"
+#include "wifi_config.h"
 
 /**
  * NŒUD D'ACCÈS OVYON (Fenêtre) v1.0
@@ -67,3 +67,4 @@ void loop() {
   if (!mqtt.connected()) reconnect();
   mqtt.loop();
 }
+

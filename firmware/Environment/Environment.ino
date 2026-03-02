@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <DHT.h>
-#include "../wifi_config.h"
+#include "wifi_config.h"
 
 /**
  * NŒUD ENVIRONNEMENT OVYON v1.0

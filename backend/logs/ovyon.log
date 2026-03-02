@@ -31,3 +31,25 @@
 {"level":"info","message":"Test 4: system reset","timestamp":"2026-02-15T11:04:56.084Z"}
 {"level":"info","message":"PASS: system reset removed all devices","timestamp":"2026-02-15T11:04:56.101Z"}
 {"level":"info","message":"SYSTEM TESTS PASSED","timestamp":"2026-02-15T11:04:56.102Z"}
+{"level":"info","message":"SYSTEM TESTS START","timestamp":"2026-03-01T13:40:52.682Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-03-01T13:40:52.766Z"}
+{"level":"info","message":"Test 1: create device","timestamp":"2026-03-01T13:40:52.772Z"}
+{"level":"info","message":"PASS: device created","timestamp":"2026-03-01T13:40:52.878Z"}
+{"level":"info","message":"Test 2: create rule","timestamp":"2026-03-01T13:40:52.879Z"}
+{"level":"info","message":"PASS: rule created","timestamp":"2026-03-01T13:40:52.887Z"}
+{"level":"info","message":"Test 3: panic mode","timestamp":"2026-03-01T13:40:52.888Z"}
+{"level":"info","message":"PASS: panic mode logged","timestamp":"2026-03-01T13:40:52.898Z"}
+{"level":"info","message":"Test 4: system reset","timestamp":"2026-03-01T13:40:52.899Z"}
+{"level":"info","message":"PASS: system reset removed all devices","timestamp":"2026-03-01T13:40:52.915Z"}
+{"level":"info","message":"SYSTEM TESTS PASSED","timestamp":"2026-03-01T13:40:52.916Z"}
+{"level":"info","message":"SYSTEM TESTS START","timestamp":"2026-03-02T07:47:49.928Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-03-02T07:47:49.958Z"}
+{"level":"info","message":"Test 1: create device","timestamp":"2026-03-02T07:47:49.964Z"}
+{"level":"info","message":"PASS: device created","timestamp":"2026-03-02T07:47:50.137Z"}
+{"level":"info","message":"Test 2: create rule","timestamp":"2026-03-02T07:47:50.138Z"}
+{"level":"info","message":"PASS: rule created","timestamp":"2026-03-02T07:47:50.182Z"}
+{"level":"info","message":"Test 3: panic mode","timestamp":"2026-03-02T07:47:50.184Z"}
+{"level":"info","message":"PASS: panic mode logged","timestamp":"2026-03-02T07:47:50.197Z"}
+{"level":"info","message":"Test 4: system reset","timestamp":"2026-03-02T07:47:50.199Z"}
+{"level":"info","message":"PASS: system reset removed all devices","timestamp":"2026-03-02T07:47:50.220Z"}
+{"level":"info","message":"SYSTEM TESTS PASSED","timestamp":"2026-03-02T07:47:50.222Z"}

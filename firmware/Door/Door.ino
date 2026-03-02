@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ESP32Servo.h>
-#include "../wifi_config.h"
+#include "wifi_config.h"
 
 /**
  * NŒUD D'ACCÈS OVYON (Porte) v1.0
