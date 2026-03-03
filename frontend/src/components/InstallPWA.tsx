@@ -7,12 +7,29 @@ const InstallPWA = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
+    console.log("🔍 PWA: InstallPWA component mounted");
+
+    // Vérifier si l'app est déjà en mode standalone
+    const isStandalone = !!(
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true
+    );
+    console.log("ℹ️ PWA: Is Standalone?", isStandalone);
+
+    if (isStandalone) {
+      console.log("🚫 PWA: Skipping popup, already in standalone mode.");
+      return;
+    }
+
     const handler = (e: any) => {
-      console.log("✅ PWA: beforeinstallprompt event fired");
+      console.log("✅ PWA: beforeinstallprompt event fired!");
       e.preventDefault();
       setDeferredPrompt(e);
       // Afficher le popup après un court délai
-      setTimeout(() => setShowPopup(true), 3000);
+      setTimeout(() => {
+        console.log("✨ PWA: Triggering popup visibility");
+        setShowPopup(true);
+      }, 3000);
     };
 
     window.addEventListener("beforeinstallprompt", handler);

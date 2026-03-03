@@ -53,3 +53,23 @@
 {"level":"info","message":"Test 4: system reset","timestamp":"2026-03-02T07:47:50.199Z"}
 {"level":"info","message":"PASS: system reset removed all devices","timestamp":"2026-03-02T07:47:50.220Z"}
 {"level":"info","message":"SYSTEM TESTS PASSED","timestamp":"2026-03-02T07:47:50.222Z"}
+{"level":"info","message":"MQTT Broker started on port 1883","timestamp":"2026-03-03T12:25:38.666Z"}
+{"level":"info","message":"MQTT WebSocket started on port 8083","timestamp":"2026-03-03T12:25:38.670Z"}
+{"level":"info","message":"API REST OVYON lancée sur le port 3001 🚀","timestamp":"2026-03-03T12:25:38.670Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-03-03T12:25:38.684Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1e8675","timestamp":"2026-03-03T12:25:40.705Z"}
+{"level":"info","message":"Client Connected: ovyon_web_268603","timestamp":"2026-03-03T12:25:43.569Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_1e8675","timestamp":"2026-03-03T12:26:19.358Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_268603","timestamp":"2026-03-03T12:26:19.366Z"}
+{"level":"info","message":"Client Connected: ovyon_web_c754ee","timestamp":"2026-03-03T12:26:20.064Z"}
+{"level":"info","message":"Client Connected: ovyon_web_676e91","timestamp":"2026-03-03T12:26:20.098Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_c754ee","timestamp":"2026-03-03T12:27:56.100Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_676e91","timestamp":"2026-03-03T12:27:56.285Z"}
+{"level":"info","message":"Client Connected: ovyon_web_d57ab3","timestamp":"2026-03-03T12:27:56.554Z"}
+{"level":"info","message":"Client Connected: ovyon_web_3da976","timestamp":"2026-03-03T12:27:56.598Z"}
+{"level":"info","message":"Client Connected: ovyon_web_f73978","timestamp":"2026-03-03T12:32:55.523Z"}
+{"level":"info","message":"Client Connected: ovyon_web_cfa856","timestamp":"2026-03-03T12:32:55.631Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_f73978","timestamp":"2026-03-03T12:34:18.860Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_cfa856","timestamp":"2026-03-03T12:34:18.872Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1c194b","timestamp":"2026-03-03T12:34:27.064Z"}
+{"level":"info","message":"Client Connected: ovyon_web_61ef73","timestamp":"2026-03-03T12:34:27.407Z"}

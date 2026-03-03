@@ -1,15 +1,17 @@
-import { create } from 'zustand';
-import mqtt from 'mqtt';
-import { toast } from 'react-hot-toast';
-import { feedback } from '../utils/feedback';
-import { authenticateUser } from '../utils/biometrics';
+import { create } from "zustand";
+import mqtt from "mqtt";
+import { toast } from "react-hot-toast";
+import { feedback } from "../utils/feedback";
+import { authenticateUser } from "../utils/biometrics";
 
-const API_BASE = 'http://localhost:3001/api';
+const API_HOST =
+  typeof window !== "undefined" ? window.location.hostname : "localhost";
+const API_BASE = `http://${API_HOST}:3001/api`;
 
 // ... (Interfaces DeviceState, VoiceCommand, AutomationRule, AppSettings, DiscoveredDevice inchangées)
 interface DeviceState {
   id: string;
-  type: 'light' | 'door' | 'window' | 'plug' | 'sensor' | 'other';
+  type: "light" | "door" | "window" | "plug" | "sensor" | "other";
   name: string;
   online: boolean;
   state: any;
@@ -20,7 +22,7 @@ interface VoiceCommand {
   text: string;
   intent: string;
   timestamp: Date;
-  status: 'success' | 'error' | 'processing';
+  status: "success" | "error" | "processing";
   response?: string;
 }
 
@@ -47,7 +49,7 @@ interface DiscoveredDevice {
   id: string;
   name: string;
   rssi: number;
-  type: 'light' | 'plug' | 'door' | 'window';
+  type: "light" | "plug" | "door" | "window";
 }
 
 interface ConfirmModalState {
@@ -64,16 +66,24 @@ interface AppState {
   automationRules: AutomationRule[];
   settings: AppSettings;
   mqttClient: mqtt.MqttClient | null;
-  activeTab: 'home' | 'voice' | 'settings' | 'vision' | 'auto' | 'analytics' | 'splash' | 'admin';
+  activeTab:
+    | "home"
+    | "voice"
+    | "settings"
+    | "vision"
+    | "auto"
+    | "analytics"
+    | "splash"
+    | "admin";
   isAppLoading: boolean;
   isPairing: boolean;
-  pairingStatus: 'idle' | 'scanning' | 'list' | 'success';
+  pairingStatus: "idle" | "scanning" | "list" | "success";
   discoveredDevices: DiscoveredDevice[];
   isSmartAiEnabled: boolean;
   isAionResponding: boolean;
   adminLogs: string[];
   isPinModalOpen: boolean;
-  
+
   // Modal State
   confirmModal: ConfirmModalState;
 
@@ -82,54 +92,68 @@ interface AppState {
   fetchAdminLogs: () => Promise<void>;
   setAppLoading: (loading: boolean) => void;
   setPairing: (pairing: boolean) => void;
-  setPairingStatus: (status: 'idle' | 'scanning' | 'list' | 'success') => void;
+  setPairingStatus: (status: "idle" | "scanning" | "list" | "success") => void;
   setDiscoveredDevices: (devices: DiscoveredDevice[]) => void;
-  setActiveTab: (tab: 'home' | 'voice' | 'settings' | 'vision' | 'auto' | 'analytics' | 'splash' | 'admin') => void;
+  setActiveTab: (
+    tab:
+      | "home"
+      | "voice"
+      | "settings"
+      | "vision"
+      | "auto"
+      | "analytics"
+      | "splash"
+      | "admin",
+  ) => void;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
   setPinModalOpen: (open: boolean) => void;
   setAdminMode: (enabled: boolean) => void;
   setSmartAi: (enabled: boolean) => void;
   resetSystem: () => void; // Changé pour utiliser la modale
   triggerPanic: () => Promise<void>;
-  initMqtt: (forceReconnect?: boolean) => void; 
+  initMqtt: (forceReconnect?: boolean) => void;
   sendCommand: (topic: string, message: string) => Promise<void>;
-  addVoiceCommand: (cmd: Omit<VoiceCommand, 'id' | 'timestamp'>) => void;
+  addVoiceCommand: (cmd: Omit<VoiceCommand, "id" | "timestamp">) => void;
   updateDevice: (id: string, newState: any) => void;
   toggleAutomation: (id: string) => void;
-  addAutomation: (rule: Omit<AutomationRule, 'id'>) => void;
+  addAutomation: (rule: Omit<AutomationRule, "id">) => void;
   updateAutomation: (id: string, rule: Partial<AutomationRule>) => void;
   deleteAutomation: (id: string) => void;
   addDevice: (device: DeviceState) => void;
   updateDeviceMeta: (id: string, name: string) => void;
   deleteDevice: (id: string) => void;
-  
+
   // Modal Actions
-  openConfirmModal: (title: string, message: string, onConfirm: () => void) => void;
+  openConfirmModal: (
+    title: string,
+    message: string,
+    onConfirm: () => void,
+  ) => void;
   closeConfirmModal: () => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
   connected: false,
   mqttClient: null,
-  activeTab: 'splash',
+  activeTab: "splash",
   isAppLoading: false,
   isPairing: false,
-  pairingStatus: 'idle',
+  pairingStatus: "idle",
   discoveredDevices: [],
   voiceHistory: [],
   adminLogs: [],
   isPinModalOpen: false,
   isSmartAiEnabled: true,
   isAionResponding: false,
-  confirmModal: { isOpen: false, title: '', message: '', onConfirm: () => {} },
+  confirmModal: { isOpen: false, title: "", message: "", onConfirm: () => {} },
   settings: {
-    brokerUrl: 'localhost:8083',
-    mqttUser: 'ovyon',
+    brokerUrl: `${API_HOST}:8083`,
+    mqttUser: "ovyon",
     notificationsEnabled: true,
     securityAlerts: true,
     biometricsEnabled: false,
     panicButtonEnabled: false,
-    adminModeEnabled: localStorage.getItem('ovyon_admin_mode') === 'true'
+    adminModeEnabled: localStorage.getItem("ovyon_admin_mode") === "true",
   },
   automationRules: [],
   devices: [],
@@ -139,7 +163,7 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       const [devRes, rulesRes] = await Promise.all([
         fetch(`${API_BASE}/devices`),
-        fetch(`${API_BASE}/rules`)
+        fetch(`${API_BASE}/rules`),
       ]);
       const devices = await devRes.json();
       const automationRules = await rulesRes.json();
@@ -160,14 +184,17 @@ export const useStore = create<AppState>((set, get) => ({
     feedback.tap();
     set({ confirmModal: { isOpen: true, title, message, onConfirm } });
   },
-  closeConfirmModal: () => set((state) => ({ confirmModal: { ...state.confirmModal, isOpen: false } })),
+  closeConfirmModal: () =>
+    set((state) => ({
+      confirmModal: { ...state.confirmModal, isOpen: false },
+    })),
 
   setPinModalOpen: (open) => set({ isPinModalOpen: open }),
 
   setAdminMode: (enabled) => {
-    localStorage.setItem('ovyon_admin_mode', String(enabled));
+    localStorage.setItem("ovyon_admin_mode", String(enabled));
     set((state) => ({
-      settings: { ...state.settings, adminModeEnabled: enabled }
+      settings: { ...state.settings, adminModeEnabled: enabled },
     }));
     if (enabled) feedback.success();
     else feedback.tap();
@@ -186,29 +213,35 @@ export const useStore = create<AppState>((set, get) => ({
       async () => {
         try {
           feedback.error();
-          const res = await fetch(`${API_BASE}/system/reset`, { method: 'POST' });
+          const res = await fetch(`${API_BASE}/system/reset`, {
+            method: "POST",
+          });
           if (res.ok) {
             set({ devices: [], automationRules: [] });
             toast.success("Système réinitialisé.");
             get().fetchData();
           }
-        } catch (e) { toast.error("Erreur réinitialisation."); }
-      }
+        } catch (e) {
+          toast.error("Erreur réinitialisation.");
+        }
+      },
     );
   },
 
   triggerPanic: async () => {
     feedback.error();
     set((state) => ({
-        devices: state.devices.map(d => ({ 
-            ...d, 
-            state: { ...d.state, power: 'off', state: 'closed', position: 0 } 
-        }))
+      devices: state.devices.map((d) => ({
+        ...d,
+        state: { ...d.state, power: "off", state: "closed", position: 0 },
+      })),
     }));
     try {
-      await fetch(`${API_BASE}/system/panic`, { method: 'POST' });
+      await fetch(`${API_BASE}/system/panic`, { method: "POST" });
       toast.error("MODE PANIQUE ACTIVÉ !");
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   },
 
   setActiveTab: (tab) => {
@@ -218,16 +251,26 @@ export const useStore = create<AppState>((set, get) => ({
   setAppLoading: (loading) => set({ isAppLoading: loading }),
   setPairing: (pairing) => {
     feedback.tap();
-    set({ isPairing: pairing, pairingStatus: pairing ? 'scanning' : 'idle', discoveredDevices: [] });
+    set({
+      isPairing: pairing,
+      pairingStatus: pairing ? "scanning" : "idle",
+      discoveredDevices: [],
+    });
   },
   setPairingStatus: (status) => set({ pairingStatus: status }),
   setDiscoveredDevices: (devices) => set({ discoveredDevices: devices }),
 
   toggleAutomation: async (id) => {
-    const rule = get().automationRules.find(r => r.id === id);
+    const rule = get().automationRules.find((r) => r.id === id);
     feedback.toggle(!rule?.enabled);
-    set((state) => ({ automationRules: state.automationRules.map(r => r.id === id ? { ...r, enabled: !r.enabled } : r) }));
-    try { await fetch(`${API_BASE}/rules/${id}/toggle`, { method: 'POST' }); } catch (e) {}
+    set((state) => ({
+      automationRules: state.automationRules.map((r) =>
+        r.id === id ? { ...r, enabled: !r.enabled } : r,
+      ),
+    }));
+    try {
+      await fetch(`${API_BASE}/rules/${id}/toggle`, { method: "POST" });
+    } catch (e) {}
   },
 
   addAutomation: async (rule) => {
@@ -236,9 +279,9 @@ export const useStore = create<AppState>((set, get) => ({
     set((state) => ({ automationRules: [...state.automationRules, newRule] }));
     try {
       await fetch(`${API_BASE}/rules`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newRule)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newRule),
       });
       toast.success("Scénario ajouté !");
       feedback.success();
@@ -246,12 +289,16 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   updateAutomation: async (id, rule) => {
-    set((state) => ({ automationRules: state.automationRules.map(r => r.id === id ? { ...r, ...rule } : r) }));
+    set((state) => ({
+      automationRules: state.automationRules.map((r) =>
+        r.id === id ? { ...r, ...rule } : r,
+      ),
+    }));
     try {
       await fetch(`${API_BASE}/rules/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rule)
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(rule),
       });
       toast.success("Scénario mis à jour");
       feedback.success();
@@ -263,13 +310,17 @@ export const useStore = create<AppState>((set, get) => ({
       "Supprimer Scénario",
       "Êtes-vous sûr de vouloir supprimer cette règle ?",
       async () => {
-        set((state) => ({ automationRules: state.automationRules.filter(r => r.id !== id) }));
+        set((state) => ({
+          automationRules: state.automationRules.filter((r) => r.id !== id),
+        }));
         try {
-          await fetch(`${API_BASE}/rules/${id}`, { method: 'DELETE' });
+          await fetch(`${API_BASE}/rules/${id}`, { method: "DELETE" });
           feedback.tap();
           toast.success("Règle supprimée");
-        } catch (e) { toast.error("Erreur suppression"); }
-      }
+        } catch (e) {
+          toast.error("Erreur suppression");
+        }
+      },
     );
   },
 
@@ -277,9 +328,9 @@ export const useStore = create<AppState>((set, get) => ({
     set((state) => ({ devices: [...state.devices, device] }));
     try {
       await fetch(`${API_BASE}/devices`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(device)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(device),
       });
       toast.success("Appareil ajouté !");
       feedback.success();
@@ -287,12 +338,14 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   updateDeviceMeta: async (id, name) => {
-    set((state) => ({ devices: state.devices.map(d => d.id === id ? { ...d, name } : d) }));
+    set((state) => ({
+      devices: state.devices.map((d) => (d.id === id ? { ...d, name } : d)),
+    }));
     try {
       await fetch(`${API_BASE}/devices/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
       });
       toast.success("Nom mis à jour");
     } catch (e) {}
@@ -303,32 +356,41 @@ export const useStore = create<AppState>((set, get) => ({
       "Supprimer Appareil",
       "Voulez-vous retirer cet appareil de l'écosystème ?",
       async () => {
-        set((state) => ({ devices: state.devices.filter(d => d.id !== id) }));
+        set((state) => ({ devices: state.devices.filter((d) => d.id !== id) }));
         try {
-          await fetch(`${API_BASE}/devices/${id}`, { method: 'DELETE' });
+          await fetch(`${API_BASE}/devices/${id}`, { method: "DELETE" });
           feedback.tap();
           toast.success("Appareil supprimé");
-        } catch (e) { toast.error("Erreur suppression"); }
-      }
+        } catch (e) {
+          toast.error("Erreur suppression");
+        }
+      },
     );
   },
 
   updateSettings: (newSettings) => {
     feedback.tap();
     set((state) => ({
-      settings: { ...state.settings, ...newSettings }
+      settings: { ...state.settings, ...newSettings },
     }));
   },
 
-  updateDevice: (id, newState) => set((state) => ({
-    devices: state.devices.map((d) => 
-      d.id === id ? { ...d, state: { ...d.state, ...newState }, online: true } : d
-    )
-  })),
+  updateDevice: (id, newState) =>
+    set((state) => ({
+      devices: state.devices.map((d) =>
+        d.id === id
+          ? { ...d, state: { ...d.state, ...newState }, online: true }
+          : d,
+      ),
+    })),
 
-  addVoiceCommand: (cmd) => set((state) => ({
-    voiceHistory: [{ ...cmd, id: Math.random().toString(), timestamp: new Date() }, ...state.voiceHistory].slice(0, 10)
-  })),
+  addVoiceCommand: (cmd) =>
+    set((state) => ({
+      voiceHistory: [
+        { ...cmd, id: Math.random().toString(), timestamp: new Date() },
+        ...state.voiceHistory,
+      ].slice(0, 10),
+    })),
 
   // ... (initMqtt et sendCommand inchangés) ...
   initMqtt: (forceReconnect = false) => {
@@ -340,27 +402,27 @@ export const useStore = create<AppState>((set, get) => ({
     }
 
     const client = mqtt.connect(`ws://${get().settings.brokerUrl}`, {
-      clientId: 'ovyon_web_' + Math.random().toString(16).substring(2, 8),
-      username: 'ovyon',
-      password: 'demo2024',
+      clientId: "ovyon_web_" + Math.random().toString(16).substring(2, 8),
+      username: "ovyon",
+      password: "demo2024",
       reconnectPeriod: 5000,
       connectTimeout: 10000,
     });
 
-    client.on('connect', () => {
+    client.on("connect", () => {
       set({ connected: true, mqttClient: client });
-      client.subscribe('ovyon/status/#');
-      client.subscribe('aion/transcript');
-      client.subscribe('aion/proactive');
-      toast.success('Système OVYON Connecté 🟢');
+      client.subscribe("ovyon/status/#");
+      client.subscribe("aion/transcript");
+      client.subscribe("aion/proactive");
+      toast.success("Système OVYON Connecté 🟢");
       feedback.success();
       get().fetchData();
     });
 
-    client.on('message', (topic, message) => {
+    client.on("message", (topic, message) => {
       const payloadStr = message.toString();
       try {
-        if (topic === 'aion/transcript') {
+        if (topic === "aion/transcript") {
           const data = JSON.parse(payloadStr);
           get().addVoiceCommand(data);
           set({ isAionResponding: true });
@@ -368,38 +430,42 @@ export const useStore = create<AppState>((set, get) => ({
           setTimeout(() => set({ isAionResponding: false }), 4000);
           return;
         }
-        if (topic === 'aion/proactive') {
+        if (topic === "aion/proactive") {
           const data = JSON.parse(payloadStr);
-          toast(data.text, { icon: '🧠', duration: 6000 });
+          toast(data.text, { icon: "🧠", duration: 6000 });
           feedback.notify();
           return;
         }
         const payload = JSON.parse(payloadStr);
-        const parts = topic.split('/');
-        const id = `${parts[2].slice(0, -1)}_${parts[3]}`; 
+        const parts = topic.split("/");
+        const id = `${parts[2].slice(0, -1)}_${parts[3]}`;
         get().updateDevice(id, payload);
       } catch (e) {}
     });
 
-    client.on('error', () => {
+    client.on("error", () => {
       set({ connected: false });
       feedback.error();
     });
 
-    client.on('close', () => set({ connected: false }));
+    client.on("close", () => set({ connected: false }));
   },
 
   sendCommand: async (topic, message) => {
     const { settings, mqttClient } = get();
 
-    if (topic.includes('door') && message === 'open' && settings.biometricsEnabled) {
+    if (
+      topic.includes("door") &&
+      message === "open" &&
+      settings.biometricsEnabled
+    ) {
       const promise = authenticateUser();
       toast.promise(promise, {
-        loading: 'Vérification biométrique...',
-        success: 'Identité confirmée',
-        error: 'Échec authentification'
+        loading: "Vérification biométrique...",
+        success: "Identité confirmée",
+        error: "Échec authentification",
       });
-      
+
       const isAuthenticated = await promise;
       if (!isAuthenticated) {
         feedback.error();
@@ -407,27 +473,36 @@ export const useStore = create<AppState>((set, get) => ({
       }
     }
 
-    const parts = topic.split('/');
+    const parts = topic.split("/");
     const type = parts[2];
     const id = parts[3];
     const action = parts[4];
 
-    if (type === 'all' && action === 'power') {
+    if (type === "all" && action === "power") {
       set((state) => ({
-        devices: state.devices.map(d => ({ ...d, state: { ...d.state, power: message } }))
+        devices: state.devices.map((d) => ({
+          ...d,
+          state: { ...d.state, power: message },
+        })),
       }));
-      feedback.toggle(message === 'on');
+      feedback.toggle(message === "on");
     } else {
       const mappedId = `${type.slice(0, -1)}_${id}`;
-      if (action === 'power') {
+      if (action === "power") {
         get().updateDevice(mappedId, { power: message });
-        feedback.toggle(message === 'on');
-      } else if (action === 'action') {
-        get().updateDevice(mappedId, { state: message === 'open' ? 'open' : 'closed', position: message === 'open' ? 100 : 0 });
-        feedback.toggle(message === 'open');
-      } else if (action === 'brightness') {
-        get().updateDevice(mappedId, { brightness: parseInt(message), power: parseInt(message) > 0 ? 'on' : 'off' });
-      } else if (action === 'position') {
+        feedback.toggle(message === "on");
+      } else if (action === "action") {
+        get().updateDevice(mappedId, {
+          state: message === "open" ? "open" : "closed",
+          position: message === "open" ? 100 : 0,
+        });
+        feedback.toggle(message === "open");
+      } else if (action === "brightness") {
+        get().updateDevice(mappedId, {
+          brightness: parseInt(message),
+          power: parseInt(message) > 0 ? "on" : "off",
+        });
+      } else if (action === "position") {
         get().updateDevice(mappedId, { position: parseInt(message) });
       }
     }
