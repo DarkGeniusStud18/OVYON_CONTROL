@@ -8,8 +8,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico"],
-
+      devOptions: {
+        enabled: true,
+      },
       manifest: {
         name: "OVYON Control Ecosystem",
         short_name: "OVYON",
@@ -18,6 +19,7 @@ export default defineConfig({
         theme_color: "#FF6B35",
         background_color: "#0A0B10",
         display: "standalone",
+        start_url: "/",
         icons: [
           {
             src: "pwa-192x192.png",
