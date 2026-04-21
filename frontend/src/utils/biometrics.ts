@@ -1,6 +1,4 @@
-const API_HOST =
-  typeof window !== "undefined" ? window.location.hostname : "localhost";
-const API_BASE = `http://${API_HOST}:3001/api`;
+const API_BASE = import.meta.env.VITE_API_URL || "https://ovyon-control.onrender.com/api";
 
 const DEFAULT_AUTH_USER = "owner";
 const AUTH_TOKEN_KEY = "ovyon_auth_token";

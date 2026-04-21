@@ -5,8 +5,7 @@ import { useStore } from "../store/useStore";
 import { Mic, History, CornerDownRight, Zap, Volume2, Sparkles, Send } from "lucide-react";
 import { authenticateUser, getWebAuthnSessionToken } from "../utils/biometrics";
 
-const API_HOST = typeof window !== "undefined" ? window.location.hostname : "localhost";
-const API_BASE = `http://${API_HOST}:3001/api`;
+const API_BASE = import.meta.env.VITE_API_URL || "https://ovyon-control.onrender.com/api";
 const VOICE_LANG_KEY = "ovyon_voice_lang";
 const UI_LANG_KEY = "ovyon_ui_lang";
 

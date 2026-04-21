@@ -4,9 +4,7 @@ import { toast } from "react-hot-toast";
 import { feedback } from "../utils/feedback";
 import { authenticateUser, getWebAuthnSessionToken } from "../utils/biometrics";
 
-const API_HOST =
-  typeof window !== "undefined" ? window.location.hostname : "localhost";
-const API_BASE = `http://${API_HOST}:3001/api`;
+const API_BASE = import.meta.env.VITE_API_URL || "https://ovyon-control.onrender.com/api";
 
 const getAuthHeaders = (): Record<string, string> | null => {
   const token = getWebAuthnSessionToken();
@@ -161,7 +159,7 @@ export const useStore = create<AppState>((set, get) => ({
   isAionResponding: false,
   confirmModal: { isOpen: false, title: "", message: "", onConfirm: () => {} },
   settings: {
-    brokerUrl: `${API_HOST}:8083`,
+    brokerUrl: import.meta.env.VITE_MQTT_URL || "wss://ovyon-control.onrender.com",
     mqttUser: "ovyon",
     notificationsEnabled: true,
     securityAlerts: true,
@@ -465,7 +463,7 @@ export const useStore = create<AppState>((set, get) => ({
       set({ connected: false, mqttClient: null });
     }
 
-    const client = mqtt.connect(`ws://${get().settings.brokerUrl}`, {
+    const client = mqtt.connect(get().settings.brokerUrl, {
       clientId: "ovyon_web_" + Math.random().toString(16).substring(2, 8),
       username: "ovyon",
       password: "demo2024",
