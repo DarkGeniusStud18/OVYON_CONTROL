@@ -192,3 +192,79 @@
 {"level":"info","message":"Client Connected: ovyon_web_f7074a","timestamp":"2026-04-21T16:18:38.374Z"}
 {"level":"info","message":"Client Connected: ovyon_web_0b9830","timestamp":"2026-04-21T16:18:38.378Z"}
 {"level":"info","message":"Client Connected: ovyon_web_880c38","timestamp":"2026-04-21T16:21:14.023Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-04-21T16:21:31.050Z"}
+{"level":"info","message":"MQTT Broker started on port 1883","timestamp":"2026-04-21T16:21:31.442Z"}
+{"level":"info","message":"MQTT WebSocket started on port 8083","timestamp":"2026-04-21T16:21:31.445Z"}
+{"level":"info","message":"API REST OVYON lancee sur le port 3001","timestamp":"2026-04-21T16:21:31.446Z"}
+{"level":"info","message":"Client Connected: ovyon_web_0b9830","timestamp":"2026-04-21T16:21:31.652Z"}
+{"level":"info","message":"Client Connected: ovyon_web_f7074a","timestamp":"2026-04-21T16:21:31.743Z"}
+{"level":"info","message":"Client Connected: ovyon_web_880c38","timestamp":"2026-04-21T16:21:31.746Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_0b9830","timestamp":"2026-04-21T16:22:56.272Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_f7074a","timestamp":"2026-04-21T16:22:56.301Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_880c38","timestamp":"2026-04-21T16:22:56.304Z"}
+{"level":"info","message":"Client Connected: ovyon_web_0f897d","timestamp":"2026-04-21T16:22:56.913Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1d7e91","timestamp":"2026-04-21T16:22:56.924Z"}
+{"level":"info","message":"Client Connected: ovyon_web_8c87b1","timestamp":"2026-04-21T16:25:23.146Z"}
+{"level":"info","message":"Client Connected: ovyon_web_bbd8ef","timestamp":"2026-04-21T16:25:23.354Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-04-21T16:33:21.736Z"}
+{"level":"info","message":"MQTT Broker started on port 1883","timestamp":"2026-04-21T16:33:21.954Z"}
+{"level":"info","message":"MQTT WebSocket started on port 8083","timestamp":"2026-04-21T16:33:21.955Z"}
+{"level":"info","message":"API REST OVYON lancee sur le port 3001","timestamp":"2026-04-21T16:33:21.955Z"}
+{"level":"info","message":"Client Connected: ovyon_web_bbd8ef","timestamp":"2026-04-21T16:33:23.549Z"}
+{"level":"info","message":"Client Connected: ovyon_web_8c87b1","timestamp":"2026-04-21T16:33:23.603Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1d7e91","timestamp":"2026-04-21T16:33:24.114Z"}
+{"level":"info","message":"Client Connected: ovyon_web_0f897d","timestamp":"2026-04-21T16:33:24.118Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-04-21T16:33:35.966Z"}
+{"level":"info","message":"MQTT Broker started on port 1883","timestamp":"2026-04-21T16:33:36.086Z"}
+{"level":"info","message":"MQTT WebSocket started on port 8083","timestamp":"2026-04-21T16:33:36.090Z"}
+{"level":"info","message":"API REST OVYON lancee sur le port 3001","timestamp":"2026-04-21T16:33:36.093Z"}
+{"level":"info","message":"Client Connected: ovyon_web_8c87b1","timestamp":"2026-04-21T16:33:37.525Z"}
+{"level":"info","message":"Client Connected: ovyon_web_bbd8ef","timestamp":"2026-04-21T16:33:37.609Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1d7e91","timestamp":"2026-04-21T16:33:37.618Z"}
+{"level":"info","message":"Client Connected: ovyon_web_0f897d","timestamp":"2026-04-21T16:33:37.625Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-04-21T16:33:44.915Z"}
+{"level":"info","message":"MQTT Broker started on port 1883","timestamp":"2026-04-21T16:33:45.019Z"}
+{"level":"info","message":"MQTT WebSocket started on port 8083","timestamp":"2026-04-21T16:33:45.020Z"}
+{"level":"info","message":"API REST OVYON lancee sur le port 3001","timestamp":"2026-04-21T16:33:45.020Z"}
+{"level":"info","message":"Client Connected: ovyon_web_8c87b1","timestamp":"2026-04-21T16:33:46.687Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1d7e91","timestamp":"2026-04-21T16:33:46.836Z"}
+{"level":"info","message":"Client Connected: ovyon_web_bbd8ef","timestamp":"2026-04-21T16:33:46.853Z"}
+{"level":"info","message":"Client Connected: ovyon_web_0f897d","timestamp":"2026-04-21T16:33:46.856Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-04-21T16:37:36.546Z"}
+{"level":"info","message":"MQTT Broker started on port 1883","timestamp":"2026-04-21T16:37:36.693Z"}
+{"level":"info","message":"MQTT WebSocket started on port 8083","timestamp":"2026-04-21T16:37:36.694Z"}
+{"level":"info","message":"API REST OVYON lancee sur le port 3001","timestamp":"2026-04-21T16:37:36.694Z"}
+{"level":"info","message":"Client Connected: ovyon_web_0f897d","timestamp":"2026-04-21T16:37:37.591Z"}
+{"level":"info","message":"Client Connected: ovyon_web_8c87b1","timestamp":"2026-04-21T16:37:37.642Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1d7e91","timestamp":"2026-04-21T16:37:38.102Z"}
+{"level":"info","message":"Client Connected: ovyon_web_bbd8ef","timestamp":"2026-04-21T16:37:38.110Z"}
+{"level":"info","message":"Base de données SQLite initialisée 🗄️","timestamp":"2026-04-21T16:37:57.665Z"}
+{"level":"info","message":"MQTT Broker started on port 1883","timestamp":"2026-04-21T16:37:57.784Z"}
+{"level":"info","message":"MQTT WebSocket started on port 8083","timestamp":"2026-04-21T16:37:57.785Z"}
+{"level":"info","message":"API REST OVYON lancee sur le port 3001","timestamp":"2026-04-21T16:37:57.786Z"}
+{"level":"info","message":"Client Connected: ovyon_web_0f897d","timestamp":"2026-04-21T16:37:58.243Z"}
+{"level":"info","message":"Client Connected: ovyon_web_8c87b1","timestamp":"2026-04-21T16:37:58.269Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1d7e91","timestamp":"2026-04-21T16:37:58.275Z"}
+{"level":"info","message":"Client Connected: ovyon_web_bbd8ef","timestamp":"2026-04-21T16:37:58.277Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_bbd8ef","timestamp":"2026-04-21T16:38:43.399Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_0f897d","timestamp":"2026-04-21T16:38:43.410Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_8c87b1","timestamp":"2026-04-21T16:38:43.411Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_1d7e91","timestamp":"2026-04-21T16:38:43.411Z"}
+{"level":"info","message":"Client Connected: ovyon_web_f4a064","timestamp":"2026-04-21T16:38:45.806Z"}
+{"level":"info","message":"Client Connected: ovyon_web_b2f2cc","timestamp":"2026-04-21T16:38:45.817Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_f4a064","timestamp":"2026-04-21T16:40:30.936Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_b2f2cc","timestamp":"2026-04-21T16:40:30.988Z"}
+{"level":"info","message":"Client Connected: ovyon_web_ff02c5","timestamp":"2026-04-21T16:40:31.585Z"}
+{"level":"info","message":"Client Connected: ovyon_web_ca9f6b","timestamp":"2026-04-21T16:40:31.945Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_ff02c5","timestamp":"2026-04-21T16:43:10.122Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_ca9f6b","timestamp":"2026-04-21T16:43:10.314Z"}
+{"level":"info","message":"Client Connected: ovyon_web_6ad70b","timestamp":"2026-04-21T16:43:15.700Z"}
+{"level":"info","message":"Client Connected: ovyon_web_1aa481","timestamp":"2026-04-21T16:43:15.782Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_1aa481","timestamp":"2026-04-21T16:48:30.400Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_6ad70b","timestamp":"2026-04-21T16:48:30.720Z"}
+{"level":"info","message":"Client Connected: ovyon_web_8adaa9","timestamp":"2026-04-21T17:31:13.804Z"}
+{"level":"info","message":"Client Connected: ovyon_web_8314c8","timestamp":"2026-04-21T17:31:13.913Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_8adaa9","timestamp":"2026-04-21T17:31:14.556Z"}
+{"level":"info","message":"Client Disconnected: ovyon_web_8314c8","timestamp":"2026-04-21T17:31:14.587Z"}
+{"level":"info","message":"Client Connected: ovyon_web_b84ec3","timestamp":"2026-04-21T17:31:21.835Z"}
+{"level":"info","message":"Client Connected: ovyon_web_41873d","timestamp":"2026-04-21T17:31:21.838Z"}

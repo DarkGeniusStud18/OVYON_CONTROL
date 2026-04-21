@@ -13,8 +13,12 @@ function run() {
   const fon = processOfflineCommand({ text: 'pa gbogbo ina', history: [] });
   assert.equal(fon.success, true, 'Fon command should match');
 
-  const yor = processOfflineCommand({ text: 'open main door', history: [] });
-  assert.equal(yor.success, true, 'Yor/EN style command should match');
+  const yor = processOfflineCommand({ text: 'tan fitila ile', history: [] });
+  assert.equal(yor.success, true, 'Yoruba command should match');
+
+  const en = processOfflineCommand({ text: 'open main door', history: [] });
+  assert.equal(en.success, true, 'English command should match');
+  assert.equal(en.language, 'en', 'English command should be tagged as en');
 
   const fallback = processOfflineCommand({
     text: 'etein toute le lumier du salon',

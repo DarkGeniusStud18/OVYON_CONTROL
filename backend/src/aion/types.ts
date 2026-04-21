@@ -1,4 +1,4 @@
-export type AionLanguage = 'fr' | 'fon' | 'yor' | 'mixed';
+export type AionLanguage = 'fr' | 'fon' | 'yor' | 'en' | 'mixed';
 
 export interface AionAction {
   topic: string;

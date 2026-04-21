@@ -11,8 +11,11 @@ function run() {
     assert_1.strict.ok(fr.actions.length > 0, 'FR command should produce actions');
     const fon = (0, engine_1.processOfflineCommand)({ text: 'pa gbogbo ina', history: [] });
     assert_1.strict.equal(fon.success, true, 'Fon command should match');
-    const yor = (0, engine_1.processOfflineCommand)({ text: 'open main door', history: [] });
-    assert_1.strict.equal(yor.success, true, 'Yor/EN style command should match');
+    const yor = (0, engine_1.processOfflineCommand)({ text: 'tan fitila ile', history: [] });
+    assert_1.strict.equal(yor.success, true, 'Yoruba command should match');
+    const en = (0, engine_1.processOfflineCommand)({ text: 'open main door', history: [] });
+    assert_1.strict.equal(en.success, true, 'English command should match');
+    assert_1.strict.equal(en.language, 'en', 'English command should be tagged as en');
     const fallback = (0, engine_1.processOfflineCommand)({
         text: 'etein toute le lumier du salon',
         history: [{
