@@ -5,9 +5,40 @@
 
 class FeedbackEngine {
   private ctx: AudioContext | null = null;
+  private hasUserGesture = false;
+  private listenersReady = false;
+
+  constructor() {
+    if (typeof window !== "undefined") {
+      this.bindUserGestureListeners();
+    }
+  }
+
+  private bindUserGestureListeners() {
+    if (this.listenersReady) return;
+    this.listenersReady = true;
+
+    const markGesture = () => {
+      this.hasUserGesture = true;
+      window.removeEventListener("pointerdown", markGesture);
+      window.removeEventListener("keydown", markGesture);
+      window.removeEventListener("touchstart", markGesture);
+      if (this.ctx && this.ctx.state === "suspended") {
+        void this.ctx.resume().catch(() => undefined);
+      }
+    };
+
+    window.addEventListener("pointerdown", markGesture, { passive: true, once: true });
+    window.addEventListener("keydown", markGesture, { passive: true, once: true });
+    window.addEventListener("touchstart", markGesture, { passive: true, once: true });
+  }
 
   private initAudio() {
+    if (!this.hasUserGesture) return;
     if (!this.ctx) this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (this.ctx.state === "suspended") {
+      void this.ctx.resume().catch(() => undefined);
+    }
   }
 
   private playTone(freq: number, type: OscillatorType, duration: number, volume: number) {
@@ -26,7 +57,7 @@ class FeedbackEngine {
   }
 
   private vibrate(pattern: number | number[]) {
-    if ('vibrate' in navigator) {
+    if (this.hasUserGesture && 'vibrate' in navigator) {
       navigator.vibrate(pattern);
     }
   }

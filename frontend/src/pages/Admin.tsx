@@ -2,15 +2,36 @@ import React, { useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { Terminal, ArrowLeft, Trash2, RefreshCw, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { authenticateUser, getWebAuthnSessionToken } from '../utils/biometrics';
+import { toast } from 'react-hot-toast';
 
 const Admin = () => {
   const { adminLogs, fetchAdminLogs, setActiveTab, resetSystem } = useStore();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchAdminLogs();
-    const interval = setInterval(fetchAdminLogs, 2000); // Live refresh
-    return () => clearInterval(interval);
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let cancelled = false;
+
+    const start = async () => {
+      if (!getWebAuthnSessionToken()) {
+        const ok = await authenticateUser();
+        if (!ok) {
+          toast.error("Session admin non déverrouillée");
+          return;
+        }
+      }
+
+      if (cancelled) return;
+      fetchAdminLogs();
+      interval = setInterval(fetchAdminLogs, 2000);
+    };
+
+    void start();
+    return () => {
+      cancelled = true;
+      if (interval) clearInterval(interval);
+    };
   }, [fetchAdminLogs]);
 
   // Auto-scroll vers le bas
@@ -81,7 +102,16 @@ const Admin = () => {
           <Trash2 size={16} /> Factory Reset
         </button>
         <button 
-          onClick={fetchAdminLogs}
+          onClick={async () => {
+            if (!getWebAuthnSessionToken()) {
+              const ok = await authenticateUser();
+              if (!ok) {
+                toast.error("Session admin non déverrouillée");
+                return;
+              }
+            }
+            fetchAdminLogs();
+          }}
           className="py-4 bg-white/5 border border-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-all"
         >
           <RefreshCw size={16} /> Refresh Logs

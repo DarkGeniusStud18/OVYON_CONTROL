@@ -2,11 +2,25 @@ import { create } from "zustand";
 import mqtt from "mqtt";
 import { toast } from "react-hot-toast";
 import { feedback } from "../utils/feedback";
-import { authenticateUser } from "../utils/biometrics";
+import { authenticateUser, getWebAuthnSessionToken } from "../utils/biometrics";
 
 const API_HOST =
   typeof window !== "undefined" ? window.location.hostname : "localhost";
 const API_BASE = `http://${API_HOST}:3001/api`;
+
+const getAuthHeaders = (): Record<string, string> | null => {
+  const token = getWebAuthnSessionToken();
+  if (!token) return null;
+  return { Authorization: `Bearer ${token}` };
+};
+
+const ensureAuthHeaders = async (): Promise<Record<string, string> | null> => {
+  const existing = getAuthHeaders();
+  if (existing) return existing;
+  const ok = await authenticateUser();
+  if (!ok) return null;
+  return getAuthHeaders();
+};
 
 // ... (Interfaces DeviceState, VoiceCommand, AutomationRule, AppSettings, DiscoveredDevice inchangées)
 interface DeviceState {
@@ -173,7 +187,11 @@ export const useStore = create<AppState>((set, get) => ({
 
   fetchAdminLogs: async () => {
     try {
-      const res = await fetch(`${API_BASE}/admin/logs`);
+      const headers = getAuthHeaders();
+      if (!headers) {
+        return;
+      }
+      const res = await fetch(`${API_BASE}/admin/logs`, { headers });
       const logs = await res.json();
       set({ adminLogs: logs });
     } catch (e) {}
@@ -213,8 +231,14 @@ export const useStore = create<AppState>((set, get) => ({
       async () => {
         try {
           feedback.error();
+          const headers = await ensureAuthHeaders();
+          if (!headers) {
+            toast.error("Auth WebAuthn requise");
+            return;
+          }
           const res = await fetch(`${API_BASE}/system/reset`, {
             method: "POST",
+            headers,
           });
           if (res.ok) {
             set({ devices: [], automationRules: [] });
@@ -230,14 +254,19 @@ export const useStore = create<AppState>((set, get) => ({
 
   triggerPanic: async () => {
     feedback.error();
-    set((state) => ({
-      devices: state.devices.map((d) => ({
-        ...d,
-        state: { ...d.state, power: "off", state: "closed", position: 0 },
-      })),
-    }));
     try {
-      await fetch(`${API_BASE}/system/panic`, { method: "POST" });
+      const headers = await ensureAuthHeaders();
+      if (!headers) {
+        toast.error("Auth WebAuthn requise");
+        return;
+      }
+      await fetch(`${API_BASE}/system/panic`, { method: "POST", headers });
+      set((state) => ({
+        devices: state.devices.map((d) => ({
+          ...d,
+          state: { ...d.state, power: "off", state: "closed", position: 0 },
+        })),
+      }));
       toast.error("MODE PANIQUE ACTIVÉ !");
     } catch (e) {
       console.error(e);
@@ -269,7 +298,12 @@ export const useStore = create<AppState>((set, get) => ({
       ),
     }));
     try {
-      await fetch(`${API_BASE}/rules/${id}/toggle`, { method: "POST" });
+      const headers = await ensureAuthHeaders();
+      if (!headers) {
+        toast.error("Auth WebAuthn requise");
+        return;
+      }
+      await fetch(`${API_BASE}/rules/${id}/toggle`, { method: "POST", headers });
     } catch (e) {}
   },
 
@@ -278,9 +312,14 @@ export const useStore = create<AppState>((set, get) => ({
     const newRule = { ...rule, id } as AutomationRule;
     set((state) => ({ automationRules: [...state.automationRules, newRule] }));
     try {
+      const authHeaders = await ensureAuthHeaders();
+      if (!authHeaders) {
+        toast.error("Auth WebAuthn requise");
+        return;
+      }
       await fetch(`${API_BASE}/rules`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders, "Content-Type": "application/json" },
         body: JSON.stringify(newRule),
       });
       toast.success("Scénario ajouté !");
@@ -295,9 +334,14 @@ export const useStore = create<AppState>((set, get) => ({
       ),
     }));
     try {
+      const authHeaders = await ensureAuthHeaders();
+      if (!authHeaders) {
+        toast.error("Auth WebAuthn requise");
+        return;
+      }
       await fetch(`${API_BASE}/rules/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders, "Content-Type": "application/json" },
         body: JSON.stringify(rule),
       });
       toast.success("Scénario mis à jour");
@@ -314,7 +358,12 @@ export const useStore = create<AppState>((set, get) => ({
           automationRules: state.automationRules.filter((r) => r.id !== id),
         }));
         try {
-          await fetch(`${API_BASE}/rules/${id}`, { method: "DELETE" });
+          const headers = await ensureAuthHeaders();
+          if (!headers) {
+            toast.error("Auth WebAuthn requise");
+            return;
+          }
+          await fetch(`${API_BASE}/rules/${id}`, { method: "DELETE", headers });
           feedback.tap();
           toast.success("Règle supprimée");
         } catch (e) {
@@ -327,9 +376,14 @@ export const useStore = create<AppState>((set, get) => ({
   addDevice: async (device) => {
     set((state) => ({ devices: [...state.devices, device] }));
     try {
+      const authHeaders = await ensureAuthHeaders();
+      if (!authHeaders) {
+        toast.error("Auth WebAuthn requise");
+        return;
+      }
       await fetch(`${API_BASE}/devices`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders, "Content-Type": "application/json" },
         body: JSON.stringify(device),
       });
       toast.success("Appareil ajouté !");
@@ -342,9 +396,14 @@ export const useStore = create<AppState>((set, get) => ({
       devices: state.devices.map((d) => (d.id === id ? { ...d, name } : d)),
     }));
     try {
+      const authHeaders = await ensureAuthHeaders();
+      if (!authHeaders) {
+        toast.error("Auth WebAuthn requise");
+        return;
+      }
       await fetch(`${API_BASE}/devices/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders, "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
       toast.success("Nom mis à jour");
@@ -358,7 +417,12 @@ export const useStore = create<AppState>((set, get) => ({
       async () => {
         set((state) => ({ devices: state.devices.filter((d) => d.id !== id) }));
         try {
-          await fetch(`${API_BASE}/devices/${id}`, { method: "DELETE" });
+          const headers = await ensureAuthHeaders();
+          if (!headers) {
+            toast.error("Auth WebAuthn requise");
+            return;
+          }
+          await fetch(`${API_BASE}/devices/${id}`, { method: "DELETE", headers });
           feedback.tap();
           toast.success("Appareil supprimé");
         } catch (e) {
